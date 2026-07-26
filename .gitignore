@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Git bundle zaxira nusxasi (repo ichida saqlanmaydi)
+my-liga-backup.bundle
