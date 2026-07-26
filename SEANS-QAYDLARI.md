@@ -280,10 +280,39 @@ Loyihaning asosiy kamchiligi — `matches` jadvaliga yozib bo'lmasligi — yopil
 - `app/admin/MatchesPanel.tsx` — turnir bo'yicha filtr, uchrashuv yaratish/
   tahrirlash/o'chirish, alohida tez «Hisob» rejimi (hisob + holat + daqiqa).
 
-**❗ Diqqat: `standings` hali avtomatik yangilanmaydi.** Hisob kiritsangiz
-«Natijalar» tabida ko'rinadi, lekin «Jadval» tabidagi ochkolar o'zgarmaydi —
-buning uchun alohida trigger kerak (siz «faqat admin panel» variantini
-tanlagansiz). Bu keyingi qadam.
+## Jadval avtomatik hisoblanishi (0019)
+
+`recalc_standings(tournament_id)` funksiyasi + `matches` jadvalidagi trigger.
+Uchrashuv qo'shilganda/o'zgarganda/o'chirilganda o'sha turnir jadvali to'liq
+qayta hisoblanadi:
+
+- yakunlangan o'yinlardan o'yin / g'alaba / durang / mag'lubiyat / gollar
+- ochko = g'alaba × 3 + durang
+- o'rin: ochko → gol farqi → urilgan gol (guruh ichida alohida)
+- o'ynagan, lekin jadvalda yo'q jamoa avtomat qo'shiladi
+
+`teams.ts` da jamoa turnirga biriktirilganda ham `recalc_standings` RPC
+chaqiriladi — aks holda yangi jamoa qo'lda qo'yilgan `pos` bilan qolib ketardi.
+
+**⚠️ Mavjud namunaviy jadval haqida:** migratsiya mavjud qatorlarni darhol
+o'zgartirmaydi. Turnirning birinchi o'yini kiritilganda o'sha turnir jadvali
+real ma'lumotga o'tadi — ya'ni 0001'dagi «6 o'yin, 15 ochko» kabi namunaviy
+qiymatlar nolga tushadi. Bu kutilgan xatti-harakat, lekin **DB o'zgarishini git
+qaytarmaydi.** Hoziroq hammasini qayta hisoblamoqchi bo'lsangiz, 0019 faylining
+oxiridagi izohli `select public.recalc_standings(id) from public.tournaments;`
+qatorini ishga tushiring.
+
+---
+
+## O'yin sahifasi to'liq yakunlandi
+
+3 tadan 2 ta tugallanmagan tab yozildi:
+
+- **Tarkib** — har bir jamoa uchun taktik sxema (`lineups.formation`), asosiy
+  tarkib pozitsiya bo'yicha guruhlangan (GK/DEF/MID/FWD), kapitan «K» belgisi
+  bilan, zaxira alohida. Roster bo'sh bo'lsa — «Tarkib hali kiritilmagan».
+- **O'yin haqida** — turnir, guruh, sana/vaqt, joy, holat + ikkala jamoaning
+  turnir jadvalidagi o'rni va ochkolari.
 
 ---
 
@@ -329,18 +358,18 @@ bora olmaydi.
 
 ### Qolgan ishlar va taxminiy hajm
 
-| # | Ish | Muhimlik | Taxminan |
+| # | Ish | Muhimlik | Holat |
 |---|---|---|---|
-| 1 | `matches` CRUD: admin panel + action + Zod (uchrashuv yaratish, hisob, daqiqa, yakunlash) | 🔴 blokerlovchi | 1 kun |
-| 2 | `standings` avtomatik hisoblash (o'yin `finished` bo'lganda trigger) | 🔴 blokerlovchi | 0.5 kun |
-| 3 | O'yin sahifasi: «Tarkib» va «O'yin haqida» tablari (3 tadan 2 tasi tugallanmagan) | 🟡 muhim | 0.5 kun |
-| 4 | `player_stats` ni turnirga bog'lash (hozir gollar turnirlar aro aralashadi) | 🟡 muhim | 0.5 kun |
-| 5 | `match_events` (kim, nechanchi daqiqada gol urdi) — gol statistikasi avtomat to'lishi uchun | 🟢 yaxshi bo'lardi | 1 kun |
-| 6 | Git repo + birinchi commit | 🔴 | 15 daqiqa |
-| 7 | E2E testlar (auth oqimi, admin CRUD) | 🟢 | 1 kun |
+| 1 | `matches` CRUD: admin panel + action + Zod | 🔴 blokerlovchi | ✅ bajarildi |
+| 2 | `standings` avtomatik hisoblash (trigger) | 🔴 blokerlovchi | ✅ bajarildi |
+| 3 | O'yin sahifasi: «Tarkib» va «O'yin haqida» tablari | 🟡 muhim | ✅ bajarildi |
+| 4 | Git repo + commitlar | 🔴 | ✅ bajarildi |
+| 5 | `player_stats` ni turnirga bog'lash (hozir gollar turnirlar aro aralashadi) | 🟡 muhim | ⬜ qoldi (~0.5 kun) |
+| 6 | `match_events` (kim, nechanchi daqiqada gol urdi) — gol statistikasi avtomat to'lishi uchun | 🟢 | ⬜ qoldi (~1 kun) |
+| 7 | E2E testlar (auth oqimi, admin CRUD) | 🟢 | ⬜ qoldi (~1 kun) |
 
-**Haqiqiy turnirni olib borish uchun minimal:** 1 + 2 + 6 ≈ **1.5–2 ish kuni**.
-**To'liq mahsulot darajasi:** ≈ **4–5 ish kuni**.
+**Ilova endi haqiqiy turnirni olib bora oladi:** turnir yaratish → jamoalarni
+biriktirish → uchrashuvlar tuzish → hisob kiritish → jadval avtomat yangilanadi.
 
 ---
 
