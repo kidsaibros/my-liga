@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PillTabs } from "@/components/ui";
 import { BackIcon } from "@/components/icons";
-import type { Match, Team, Tournament, News, Sponsor, AppSettings, Profile } from "@/lib/types";
+import type { Match, Player, Team, Tournament, News, Sponsor, AppSettings, Profile } from "@/lib/types";
 import { TournamentsPanel } from "./TournamentsPanel";
 import { MatchesPanel } from "./MatchesPanel";
 import { TeamsPanel } from "./TeamsPanel";
@@ -37,6 +37,7 @@ export function AdminClient({
   tournaments,
   matches,
   teams,
+  players,
   news,
   sponsors,
   settings,
@@ -45,6 +46,7 @@ export function AdminClient({
   tournaments: Tournament[];
   matches: Match[];
   teams: Team[];
+  players: Player[];
   news: News[];
   sponsors: Sponsor[];
   settings: AppSettings | null;
@@ -70,7 +72,12 @@ export function AdminClient({
 
       {tab === "turnirlar" && <TournamentsPanel initialTournaments={tournaments} />}
       {tab === "oyinlar" && (
-        <MatchesPanel initialMatches={matches} tournaments={tournaments} teams={teams} />
+        <MatchesPanel
+          initialMatches={matches}
+          tournaments={tournaments}
+          teams={teams}
+          players={players}
+        />
       )}
       {tab === "jamoalar" && <TeamsPanel initialTeams={teams} tournaments={tournaments} coaches={users} />}
       {tab === "murabbiylar" && <CoachesPanel initialUsers={users} teams={teams} />}

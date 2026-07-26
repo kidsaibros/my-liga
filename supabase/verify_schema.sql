@@ -25,6 +25,7 @@ with expected(kind, name, migration) as (
     ('table', 'lineups',        '0013'),
     ('table', 'coach_invites',  '0016'),
     ('table', 'notifications',  '0016'),
+    ('table', 'match_events',   '0021'),
 
     -- ── Funksiyalar ─────────────────────────────────────────────────────────
     ('function', 'is_admin',                         '0003'),
@@ -36,6 +37,8 @@ with expected(kind, name, migration) as (
     ('function', 'notify_team_created',              '0016'),
     ('function', 'recalc_standings',                 '0019'),
     ('function', 'matches_recalc_standings',         '0019'),
+    ('function', 'tournament_scorers',               '0021'),
+    ('function', 'overall_scorers',                  '0021'),
 
     -- ── Ustunlar (keyingi migratsiyalarda qo'shilganlari) ───────────────────
     ('column', 'profiles.role',           '0003'),

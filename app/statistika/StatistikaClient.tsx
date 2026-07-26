@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PillTabs, Crest } from "@/components/ui";
 import { Screen } from "@/components/Screen";
-import type { PlayerStat } from "@/lib/types";
+import type { Scorer } from "@/lib/types";
 
 type StatTabId = "top" | "assist" | "golpas";
 
@@ -21,7 +21,7 @@ const rankStyles = [
 ];
 const rankDefault = { bg: "rgba(255,255,255,0.05)", color: "rgba(237,244,239,0.6)", border: "rgba(255,255,255,0.1)" };
 
-export function StatistikaClient({ players }: { players: PlayerStat[] }) {
+export function StatistikaClient({ players }: { players: Scorer[] }) {
   const [tab, setTab] = useState<StatTabId>("top");
 
   const rows = useMemo(() => {
@@ -46,7 +46,7 @@ export function StatistikaClient({ players }: { players: PlayerStat[] }) {
             const value = tab === "top" ? p.goals : tab === "assist" ? p.assists : p.goals + p.assists;
             return (
               <div
-                key={p.id}
+                key={`${p.player_name}-${p.team_id}`}
                 className="flex items-center gap-3 rounded-[18px] border border-white/[0.07] bg-white/[0.04] px-4 py-3 backdrop-blur transition-all hover:translate-x-1 hover:border-[rgba(47,216,113,0.45)]"
               >
                 <div

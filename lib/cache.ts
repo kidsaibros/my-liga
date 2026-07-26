@@ -1,6 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/public";
-import type { Match, News, PlayerStat, Sponsor, Standing, Tournament } from "@/lib/types";
+import type { Match, News, Scorer, ScorerRow, Sponsor, Standing, Team, Tournament } from "@/lib/types";
 
 /**
  * NEGA `export const revalidate` EMAS:
@@ -88,18 +88,37 @@ export async function getNews(): Promise<News[]> {
   return (data ?? []) as News[];
 }
 
-/** Umumiy gol/pas statistikasi (/statistika). */
-export async function getPlayerStats(): Promise<PlayerStat[]> {
+/**
+ * RPC faqat (ism, team_id, gol, uzatma) qaytaradi — jamoa ma'lumotini alohida
+ * so'rab, xotirada bog'laymiz (RPC natijasiga PostgREST join qila olmaydi).
+ * Jamoasi topilmagan qatorlar tashlab yuboriladi — ular UI'da baribir
+ * ko'rsatib bo'lmaydi.
+ */
+async function attachTeams(rows: ScorerRow[]): Promise<Scorer[]> {
+  if (rows.length === 0) return [];
+
+  const supabase = createPublicClient();
+  const teamIds = [...new Set(rows.map((r) => r.team_id))];
+  const { data: teams } = await supabase.from("teams").select("*").in("id", teamIds);
+
+  const byId = new Map((teams ?? []).map((t) => [t.id, t as Team]));
+  return rows
+    .map((r) => {
+      const team = byId.get(r.team_id);
+      return team ? { ...r, team } : null;
+    })
+    .filter((r): r is Scorer => r !== null);
+}
+
+/** Umumiy gol/uzatma statistikasi (/statistika) — barcha turnirlar bo'yicha. */
+export async function getOverallScorers(): Promise<Scorer[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag(CACHE_TAGS.playerStats);
 
   const supabase = createPublicClient();
-  const { data } = await supabase
-    .from("player_stats")
-    .select("*, team:teams(*)")
-    .order("goals", { ascending: false });
-  return (data ?? []) as unknown as PlayerStat[];
+  const { data } = await supabase.rpc("overall_scorers");
+  return attachTeams((data ?? []) as ScorerRow[]);
 }
 
 export type TournamentDetail = {
@@ -107,7 +126,7 @@ export type TournamentDetail = {
   standings: Standing[];
   upcoming: Match[];
   results: Match[];
-  scorers: PlayerStat[];
+  scorers: Scorer[];
 } | null;
 
 /** Turnir tafsilotlari sahifasining barcha 5 ta tabi uchun ma'lumot (/turnirlar/[slug]). */
@@ -154,23 +173,18 @@ export async function getTournamentDetail(slug: string): Promise<TournamentDetai
       .order("kickoff_at", { ascending: false }),
   ]);
 
-  // «To'purarlar» tabi — player_stats turnirga emas, jamoaga bog'langan, shuning
-  // uchun turnir tarkibidagi jamoalar bo'yicha filtrlaymiz (standings = turnir-jamoa
-  // bog'lanishi). Jamoalar hali kiritilmagan bo'lsa, so'rovni umuman yubormaymiz.
-  const teamIds = (standings ?? []).map((s) => s.team_id);
-  const { data: scorers } = teamIds.length
-    ? await supabase
-        .from("player_stats")
-        .select("*, team:teams(*)")
-        .in("team_id", teamIds)
-        .order("goals", { ascending: false })
-    : { data: [] };
+  // «To'purarlar» tabi — SHU TURNIRDAGI o'yin hodisalaridan hisoblanadi (0021).
+  // Ilgari `player_stats` ishlatilardi, u esa turnirga bog'lanmagan edi: bir
+  // jamoa ikki turnirda qatnashsa, gollari qo'shilib ketardi.
+  const { data: scorerRows } = await supabase.rpc("tournament_scorers", {
+    p_tournament_id: tournament.id,
+  });
 
   return {
     tournament: tournament as Tournament,
     standings: (standings ?? []) as unknown as Standing[],
     upcoming: (upcoming ?? []) as unknown as Match[],
     results: (results ?? []) as unknown as Match[],
-    scorers: (scorers ?? []) as unknown as PlayerStat[],
+    scorers: await attachTeams((scorerRows ?? []) as ScorerRow[]),
   };
 }

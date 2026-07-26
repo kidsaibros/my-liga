@@ -177,6 +177,67 @@ async function checkStandingsLogic(db) {
   }
 }
 
+/**
+ * To'purarlar HAR TURNIR uchun alohida hisoblanishini tekshiradi (0021).
+ * Aynan shu narsa `player_stats` da buzuq edi: bir jamoa ikki turnirda
+ * o'ynasa, gollari qo'shilib ketardi.
+ */
+async function checkScorersPerTournament(db) {
+  const expect = (label, actual, want) => {
+    if (String(actual) !== String(want)) fail(`${label}: kutilgan ${want}, chiqdi ${actual}`);
+  };
+
+  try {
+    await db.exec(`
+      -- Ikkinchi turnir: AYNAN SHU jamoalar yana o'ynaydi
+      insert into public.tournaments (slug, name, dates_label, starts_on, ends_on, status)
+        values ('t-test2', 'Ikkinchi kubok', 'test', '2026-03-01', '2026-04-01', 'faol');
+
+      insert into public.matches (tournament_id, home_team_id, away_team_id, home_score, away_score, status, kickoff_at)
+      select t.id, h.id, a.id, 2, 0, 'finished', '2026-03-10'::timestamptz
+      from public.teams h, public.teams a, public.tournaments t
+      where h.slug = 't-a' and a.slug = 't-c' and t.slug = 't-test2';
+
+      -- 1-turnirdagi (Alfa 1:1 Gamma) o'yinga gol yozamiz
+      insert into public.match_events (match_id, team_id, player_name, type, minute)
+      select m.id, h.id, 'Aziz', 'goal', 20
+      from public.matches m
+      join public.teams h on h.id = m.home_team_id
+      join public.tournaments t on t.id = m.tournament_id
+      where t.slug = 't-test' and h.slug = 't-a';
+
+      -- 2-turnirdagi o'yinga o'sha o'yinchining 2 ta goli
+      insert into public.match_events (match_id, team_id, player_name, type, minute)
+      select m.id, h.id, 'Aziz', 'goal', v.min
+      from public.matches m
+      join public.teams h on h.id = m.home_team_id
+      join public.tournaments t on t.id = m.tournament_id
+      cross join (values (15), (60)) as v(min)
+      where t.slug = 't-test2' and h.slug = 't-a';
+    `);
+
+    const t1 = (
+      await db.query(
+        `select * from public.tournament_scorers((select id from public.tournaments where slug = 't-test'))`
+      )
+    ).rows;
+    const t2 = (
+      await db.query(
+        `select * from public.tournament_scorers((select id from public.tournaments where slug = 't-test2'))`
+      )
+    ).rows;
+    const all = (await db.query(`select * from public.overall_scorers()`)).rows;
+
+    expect("1-turnirda Aziz gollari", t1.find((r) => r.player_name === "Aziz")?.goals, 1);
+    expect("2-turnirda Aziz gollari", t2.find((r) => r.player_name === "Aziz")?.goals, 2);
+    expect("umumiy Aziz gollari", all.find((r) => r.player_name === "Aziz")?.goals, 3);
+
+    console.log("  ✅ to'purarlar: gollar turnirlar aro aralashmayapti (1 + 2 = 3)");
+  } catch (err) {
+    fail(`to'purarlar hisobi — ${String(err.message).split("\n")[0]}`);
+  }
+}
+
 async function newDb() {
   const db = await PGlite.create({ extensions: { pgcrypto } });
   await db.exec(SUPABASE_STUB);
@@ -190,6 +251,7 @@ console.log("1) TOZA BAZA — barcha migratsiyalar ketma-ket:");
   await applyMigrations(db, ALL);
   await checkSchema(db);
   await checkStandingsLogic(db);
+  await checkScorersPerTournament(db);
   await db.close();
 }
 
@@ -214,6 +276,7 @@ console.log("\n2) YETIB OLISH — 0014/0015/0016/0019 tushib qolgan bazani tuzat
 
   await checkSchema(db);
   await checkStandingsLogic(db);
+  await checkScorersPerTournament(db);
   await db.close();
 }
 

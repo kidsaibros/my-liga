@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { createMatch, updateMatch, updateMatchScore, deleteMatch } from "@/lib/actions/matches";
+import { MatchEventsEditor } from "./MatchEventsEditor";
 import { formatMatchDateTime } from "@/lib/format";
-import type { Match, MatchStatus, Team, Tournament } from "@/lib/types";
+import type { Match, MatchStatus, Player, Team, Tournament } from "@/lib/types";
 import { PlusIcon } from "@/components/icons";
 import { Crest } from "@/components/ui";
 import { Toast } from "@/components/Toast";
@@ -51,10 +52,12 @@ export function MatchesPanel({
   initialMatches,
   tournaments,
   teams,
+  players,
 }: {
   initialMatches: Match[];
   tournaments: Tournament[];
   teams: Team[];
+  players: Player[];
 }) {
   const [items, setItems] = useState(initialMatches);
   const [filterTournament, setFilterTournament] = useState<string>(tournaments[0]?.id ?? "");
@@ -310,6 +313,13 @@ export function MatchesPanel({
                       {saving ? "..." : "Hisobni saqlash"}
                     </button>
                   </div>
+
+                  {/* Gol mualliflari — «To'purarlar» ro'yxati shulardan hisoblanadi */}
+                  <MatchEventsEditor
+                    match={m}
+                    players={players}
+                    onError={(msg) => setToast({ msg, kind: "error" })}
+                  />
                 </div>
               ) : (
                 <div className="mt-3 flex gap-2 border-t border-white/[0.07] pt-3">

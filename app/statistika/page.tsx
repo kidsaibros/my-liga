@@ -1,8 +1,8 @@
-import { getPlayerStats } from "@/lib/cache";
+import { getOverallScorers } from "@/lib/cache";
 import { StatistikaClient } from "./StatistikaClient";
 
 export default async function StatistikaPage() {
-  const players = await getPlayerStats();
+  const players = await getOverallScorers();
 
   return <StatistikaClient players={players} />;
 }

@@ -121,6 +121,23 @@ export const matchScoreSchema = z
   .transform((v) => ({ ...v, minute: v.status === "live" ? (v.minute ?? 0) : null }));
 export type MatchScoreInput = z.infer<typeof matchScoreSchema>;
 
+// ── match_events (o'yin hodisalari) ────────────────────────
+export const matchEventTypeSchema = z.enum(["goal", "assist", "own_goal", "yellow", "red"]);
+
+/**
+ * Gol/uzatma/kartochka hodisasi. `player_id` ixtiyoriy: roster kiritilmagan
+ * jamoada admin faqat ismni yozadi.
+ */
+export const matchEventSchema = z.object({
+  match_id: idSchema,
+  team_id: idSchema,
+  player_id: idSchema.nullish(),
+  player_name: z.string().trim().min(1, "O'yinchi ismi majburiy").max(120),
+  type: matchEventTypeSchema,
+  minute: z.coerce.number().int().min(0).max(130).nullish(),
+});
+export type MatchEventInput = z.infer<typeof matchEventSchema>;
+
 // ── news ───────────────────────────────────────────────────
 export const newsSchema = z.object({
   title: z.string().trim().min(1, "Sarlavha majburiy").max(200),

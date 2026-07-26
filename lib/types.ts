@@ -39,7 +39,25 @@ export type Match = Narrow<Tables<"matches">, { status: MatchStatus }> & {
   tournament?: Tournament;
 };
 
+/** @deprecated `match_events` (0021) ni ishlating — u turnirga bog'langan. */
 export type PlayerStat = Tables<"player_stats"> & { team: Team };
+
+export type MatchEventType = "goal" | "assist" | "own_goal" | "yellow" | "red";
+
+export type MatchEvent = Narrow<Tables<"match_events">, { type: MatchEventType }>;
+
+/**
+ * `tournament_scorers()` / `overall_scorers()` funksiyalari qaytaradigan qator.
+ * Jamoa alohida qo'shiladi (RPC join qilmaydi).
+ */
+export type ScorerRow = {
+  player_name: string;
+  team_id: string;
+  goals: number;
+  assists: number;
+};
+
+export type Scorer = ScorerRow & { team: Team };
 
 export type Profile = Narrow<Tables<"profiles">, { role: ProfileRole }> & {
   team: Team | null;

@@ -6,7 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { Crest } from "@/components/ui";
 import { BackIcon, ShareIcon, CalendarIcon, ClockIcon, TrophyIcon, PinIcon } from "@/components/icons";
 import { formatMatchDateTime } from "@/lib/format";
-import type { Match, PlayerStat, Standing, Tournament } from "@/lib/types";
+import type { Match, Scorer, Standing, Tournament } from "@/lib/types";
 
 const tabs = ["Jadval", "O'yinlar", "Natijalar", "To'purarlar", "Reglament"] as const;
 type TabId = (typeof tabs)[number];
@@ -140,7 +140,7 @@ export function TournamentDetailClient({
   standings: Standing[];
   upcoming: Match[];
   results: Match[];
-  scorers: PlayerStat[];
+  scorers: Scorer[];
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<TabId>("Jadval");
@@ -371,7 +371,7 @@ export function TournamentDetailClient({
                 const rs = rankStyles[i] ?? rankDefault;
                 return (
                   <div
-                    key={p.id}
+                    key={`${p.player_name}-${p.team_id}`}
                     className="flex items-center gap-3 rounded-[18px] border border-white/[0.07] bg-white/[0.04] px-4 py-3 transition-all hover:translate-x-1 hover:border-[rgba(47,216,113,0.45)]"
                   >
                     <div

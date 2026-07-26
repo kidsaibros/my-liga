@@ -456,6 +456,53 @@ export type Database = {
         ];
       };
 
+      match_events: {
+        Row: {
+          id: string;
+          match_id: string;
+          team_id: string;
+          player_id: string | null;
+          player_name: string;
+          type: string;
+          minute: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          match_id: string;
+          team_id: string;
+          player_id?: string | null;
+          player_name: string;
+          type: string;
+          minute?: number | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["match_events"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "match_events_match_id_fkey";
+            columns: ["match_id"];
+            isOneToOne: false;
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "match_events_team_id_fkey";
+            columns: ["team_id"];
+            isOneToOne: false;
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "match_events_player_id_fkey";
+            columns: ["player_id"];
+            isOneToOne: false;
+            referencedRelation: "players";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+
       chat_messages: {
         Row: {
           id: string;
@@ -499,6 +546,14 @@ export type Database = {
       is_coach: { Args: Record<string, never>; Returns: boolean };
       is_team_coach: { Args: { p_team_id: string }; Returns: boolean };
       recalc_standings: { Args: { p_tournament_id: string }; Returns: undefined };
+      tournament_scorers: {
+        Args: { p_tournament_id: string };
+        Returns: { player_name: string; team_id: string; goals: number; assists: number }[];
+      };
+      overall_scorers: {
+        Args: Record<string, never>;
+        Returns: { player_name: string; team_id: string; goals: number; assists: number }[];
+      };
     };
 
     Enums: Record<never, never>;
