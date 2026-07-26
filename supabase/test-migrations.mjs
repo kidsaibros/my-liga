@@ -1,18 +1,22 @@
 /**
- * Migratsiyalarni TOZA bazada boshidan oxirigacha sinab ko'radi.
+ * Migratsiyalarni haqiqiy PostgreSQL'da (PGlite / WASM) sinab ko'radi.
  *
  * Nega kerak: migratsiyalar Supabase Dashboard'ga qo'lda joylashtirilgani uchun
- * bittasi o'rtada xato bilan to'xtasa, buni faqat ilova buzilganda sezamiz
- * (`coach_invites` shunday yo'qolib qolgan edi). Bu skript xuddi shu zanjirni
- * mahalliy PGlite (WASM PostgreSQL) da ishga tushirib, xatoni oldindan topadi.
+ * bittasi tushib qolsa yoki xato bilan to'xtasa, buni faqat ilova buzilganda
+ * sezamiz. Bu skript zanjirni mahalliy bazada ishga tushirib, xatoni oldindan
+ * topadi.
  *
  * Ishga tushirish:
  *   npm run db:test
  *
+ * Ikkita ssenariy tekshiriladi:
+ *   1. TOZA BAZA — 0001 dan oxirigacha hammasi ketma-ket.
+ *   2. YETIB OLISH — ba'zi migratsiyalar tushib qolgan baza (haqiqiy holat) va
+ *      undan keyin yetishmayotganlarini qo'llash.
+ *
  * Eslatma: PGlite'da Supabase'ning `auth`/`storage` sxemalari yo'q, shuning
- * uchun quyida ularning minimal "qo'g'irchoq" (stub) versiyasi yaratiladi.
- * Maqsad — SQL sintaksisi va obyektlar bog'liqligini tekshirish, Supabase
- * xatti-harakatini to'liq takrorlash emas.
+ * uchun quyida ularning minimal "qo'g'irchoq" versiyasi yaratiladi. Maqsad —
+ * SQL va obyektlar bog'liqligini tekshirish, Supabase'ni to'liq takrorlash emas.
  */
 
 import { PGlite } from "@electric-sql/pglite";
@@ -24,11 +28,17 @@ import { fileURLToPath } from "node:url";
 const here = dirname(fileURLToPath(import.meta.url));
 const migrationsDir = join(here, "migrations");
 
+const ALL = readdirSync(migrationsDir)
+  .filter((f) => f.endsWith(".sql"))
+  .sort();
+
+const sqlOf = (file) => readFileSync(join(migrationsDir, file), "utf8");
+const num = (file) => file.slice(0, 4);
+
 /** Supabase muhitining minimal taqlidi. */
 const SUPABASE_STUB = `
 create extension if not exists pgcrypto;
 
--- Supabase rollari
 do $$
 begin
   if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon; end if;
@@ -36,7 +46,6 @@ begin
   if not exists (select 1 from pg_roles where rolname = 'service_role') then create role service_role; end if;
 end $$;
 
--- auth sxemasi
 create schema if not exists auth;
 create table if not exists auth.users (
   id uuid primary key default gen_random_uuid(),
@@ -45,7 +54,6 @@ create table if not exists auth.users (
 create or replace function auth.uid() returns uuid language sql stable as $$ select null::uuid $$;
 create or replace function auth.role() returns text language sql stable as $$ select 'authenticated'::text $$;
 
--- storage sxemasi
 create schema if not exists storage;
 create table if not exists storage.buckets (
   id text primary key, name text not null, public boolean not null default false
@@ -60,7 +68,6 @@ alter table storage.objects enable row level security;
 create or replace function storage.foldername(name text) returns text[]
   language sql immutable as $$ select string_to_array(name, '/') $$;
 
--- Realtime publikatsiyasi
 do $$
 begin
   if not exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
@@ -69,136 +76,146 @@ begin
 end $$;
 `;
 
-const db = await PGlite.create({ extensions: { pgcrypto } });
+let problems = 0;
 
-console.log("Supabase muhiti tayyorlanmoqda...");
-await db.exec(SUPABASE_STUB);
+function fail(msg) {
+  problems++;
+  console.log(`  ❌ ${msg}`);
+}
 
-const files = readdirSync(migrationsDir)
-  .filter((f) => f.endsWith(".sql"))
-  .sort();
+async function applyMigrations(db, files, { quiet = false } = {}) {
+  for (const file of files) {
+    try {
+      await db.exec(sqlOf(file));
+      if (!quiet) console.log(`  ✅ ${file}`);
+    } catch (err) {
+      fail(`${file} — ${String(err.message).split("\n")[0]}`);
+    }
+  }
+}
 
-let failed = 0;
-
-for (const file of files) {
-  const sql = readFileSync(join(migrationsDir, file), "utf8");
+async function checkSchema(db) {
+  const verifySql = readFileSync(join(here, "verify_schema.sql"), "utf8");
   try {
-    await db.exec(sql);
-    console.log(`  ✅ ${file}`);
+    const res = await db.query(verifySql);
+    const missing = res.rows.filter((r) => String(r.holat).includes("YO"));
+    if (missing.length === 0) {
+      console.log(`  ✅ sxema: kutilgan ${res.rows.length} ta obyektning hammasi joyida`);
+    } else {
+      fail(`sxema: ${missing.length} ta obyekt yo'q`);
+      for (const m of missing) console.log(`       ${m.migration} ${m.turi} ${m.obyekt}`);
+    }
   } catch (err) {
-    failed++;
-    console.log(`  ❌ ${file}`);
-    console.log(`     ${String(err.message).split("\n")[0]}`);
-    if (err.hint) console.log(`     maslahat: ${err.hint}`);
-    // To'xtatmaymiz: keyingilarida yana nima buzilishini ham ko'ramiz.
+    fail(`verify_schema.sql ishlamadi — ${String(err.message).split("\n")[0]}`);
   }
 }
 
-// ── Yakuniy sxema tekshiruvi ────────────────────────────────────────────────
-const verifySql = readFileSync(join(here, "verify_schema.sql"), "utf8");
-console.log("\nSxema tekshiruvi (verify_schema.sql):");
-try {
-  const res = await db.query(verifySql);
-  const missing = res.rows.filter((r) => String(r.holat).includes("YO"));
-  if (missing.length === 0) {
-    console.log(`  ✅ kutilgan ${res.rows.length} ta obyektning hammasi joyida`);
-  } else {
-    failed++;
-    console.log(`  ❌ ${missing.length} ta obyekt yo'q:`);
-    for (const m of missing) console.log(`     ${m.migration} ${m.turi} ${m.obyekt}`);
+/** Ochkolar/o'rinlar haqiqatan to'g'ri hisoblanayotganini tekshiradi (0019). */
+async function checkStandingsLogic(db) {
+  const expect = (label, actual, want) => {
+    if (String(actual) !== String(want)) fail(`${label}: kutilgan ${want}, chiqdi ${actual}`);
+  };
+
+  try {
+    await db.exec(`
+      insert into public.teams (slug, name, init, crest_gradient) values
+        ('t-a', 'Alfa', 'AL', 'x'), ('t-b', 'Beta', 'BE', 'x'), ('t-c', 'Gamma', 'GA', 'x');
+
+      insert into public.tournaments (slug, name, dates_label, starts_on, ends_on, status)
+        values ('t-test', 'Test kubogi', 'test', '2026-01-01', '2026-02-01', 'faol');
+
+      insert into public.standings (tournament_id, team_id, group_name, pos)
+      select t.id, tm.id, 'A', 0 from public.tournaments t, public.teams tm
+      where t.slug = 't-test' and tm.slug in ('t-a','t-b','t-c');
+
+      -- Alfa 3:1 Beta, Beta 2:0 Gamma, Alfa 1:1 Gamma
+      insert into public.matches (tournament_id, home_team_id, away_team_id, home_score, away_score, status, kickoff_at)
+      select t.id, h.id, a.id, v.hs, v.as_, 'finished', '2026-01-10'::timestamptz
+      from (values ('t-a','t-b',3,1), ('t-b','t-c',2,0), ('t-a','t-c',1,1)) as v(home, away, hs, as_)
+      join public.teams h on h.slug = v.home
+      join public.teams a on a.slug = v.away
+      cross join public.tournaments t
+      where t.slug = 't-test';
+    `);
+
+    const rows = (
+      await db.query(`
+        select tm.slug, s.played, s.won, s.drawn, s.lost, s.goals_for, s.goals_against, s.points, s.pos
+        from public.standings s
+        join public.teams tm on tm.id = s.team_id
+        join public.tournaments t on t.id = s.tournament_id
+        where t.slug = 't-test'
+      `)
+    ).rows;
+    const by = Object.fromEntries(rows.map((r) => [r.slug, r]));
+
+    expect("Alfa ochko", by["t-a"]?.points, 4);
+    expect("Alfa o'yin", by["t-a"]?.played, 2);
+    expect("Alfa gollar", `${by["t-a"]?.goals_for}:${by["t-a"]?.goals_against}`, "4:2");
+    expect("Alfa o'rin", by["t-a"]?.pos, 1);
+    expect("Beta ochko", by["t-b"]?.points, 3);
+    expect("Beta o'rin", by["t-b"]?.pos, 2);
+    expect("Gamma ochko", by["t-c"]?.points, 1);
+    expect("Gamma o'rin", by["t-c"]?.pos, 3);
+
+    await db.exec(`
+      delete from public.matches m using public.teams h, public.teams a
+      where m.home_team_id = h.id and m.away_team_id = a.id
+        and h.slug = 't-a' and a.slug = 't-b';
+    `);
+    const after = (
+      await db.query(
+        `select s.points from public.standings s
+         join public.teams tm on tm.id = s.team_id where tm.slug = 't-a'`
+      )
+    ).rows[0];
+    expect("o'yin o'chirilgach Alfa ochkosi", after?.points, 1);
+
+    console.log("  ✅ jadval mantiqi: ochko, gol va o'rinlar to'g'ri");
+  } catch (err) {
+    fail(`jadval mantiqi — ${String(err.message).split("\n")[0]}`);
   }
-} catch (err) {
-  failed++;
-  console.log(`  ❌ verify_schema.sql ishlamadi: ${String(err.message).split("\n")[0]}`);
 }
 
-// ── Funksional test: standings avtomatik hisoblanishi (0019) ────────────────
-// Sintaksis to'g'ri bo'lishi yetarli emas — ochkolar va o'rinlar HAQIQATAN
-// to'g'ri hisoblanayotganini tekshiramiz.
-console.log("\nFunksional test — jadval avtomatik hisoblanishi:");
-
-function expect(label, actual, want) {
-  const ok = String(actual) === String(want);
-  if (!ok) {
-    failed++;
-    console.log(`  ❌ ${label}: kutilgan ${want}, chiqdi ${actual}`);
-  }
-  return ok;
+async function newDb() {
+  const db = await PGlite.create({ extensions: { pgcrypto } });
+  await db.exec(SUPABASE_STUB);
+  return db;
 }
 
-try {
-  await db.exec(`
-    insert into public.teams (slug, name, init, crest_gradient) values
-      ('t-a', 'Alfa', 'AL', 'x'), ('t-b', 'Beta', 'BE', 'x'), ('t-c', 'Gamma', 'GA', 'x');
-
-    insert into public.tournaments (slug, name, dates_label, starts_on, ends_on, status)
-      values ('t-test', 'Test kubogi', 'test', '2026-01-01', '2026-02-01', 'faol');
-
-    -- Uchta jamoani jadvalga biriktiramiz
-    insert into public.standings (tournament_id, team_id, group_name, pos)
-    select t.id, tm.id, 'A', 0 from public.tournaments t, public.teams tm
-    where t.slug = 't-test' and tm.slug in ('t-a','t-b','t-c');
-
-    -- Yakunlangan uchrashuvlar: A 3:1 B, B 2:0 C, A 1:1 C
-    insert into public.matches (tournament_id, home_team_id, away_team_id, home_score, away_score, status, kickoff_at)
-    select t.id, h.id, a.id, v.hs, v.as_, 'finished', '2026-01-10'::timestamptz
-    from (values ('t-a','t-b',3,1), ('t-b','t-c',2,0), ('t-a','t-c',1,1)) as v(home, away, hs, as_)
-    join public.teams h on h.slug = v.home
-    join public.teams a on a.slug = v.away
-    cross join public.tournaments t
-    where t.slug = 't-test';
-  `);
-
-  const rows = (
-    await db.query(`
-      select tm.slug, s.played, s.won, s.drawn, s.lost, s.goals_for, s.goals_against, s.points, s.pos
-      from public.standings s
-      join public.teams tm on tm.id = s.team_id
-      join public.tournaments t on t.id = s.tournament_id
-      where t.slug = 't-test'
-      order by s.pos
-    `)
-  ).rows;
-
-  const by = Object.fromEntries(rows.map((r) => [r.slug, r]));
-
-  // Alfa: 1 g'alaba + 1 durang = 4 ochko, 4:2 gol → 1-o'rin
-  expect("Alfa ochko", by["t-a"]?.points, 4);
-  expect("Alfa o'yin", by["t-a"]?.played, 2);
-  expect("Alfa gollar", `${by["t-a"]?.goals_for}:${by["t-a"]?.goals_against}`, "4:2");
-  expect("Alfa o'rin", by["t-a"]?.pos, 1);
-
-  // Beta: 1 g'alaba + 1 mag'lubiyat = 3 ochko → 2-o'rin
-  expect("Beta ochko", by["t-b"]?.points, 3);
-  expect("Beta o'rin", by["t-b"]?.pos, 2);
-
-  // Gamma: 1 durang = 1 ochko → 3-o'rin
-  expect("Gamma ochko", by["t-c"]?.points, 1);
-  expect("Gamma mag'lubiyat", by["t-c"]?.lost, 1);
-  expect("Gamma o'rin", by["t-c"]?.pos, 3);
-
-  // O'yin o'chirilganda jadval qayta hisoblanishi kerak
-  await db.exec(`
-    delete from public.matches m using public.teams h, public.teams a
-    where m.home_team_id = h.id and m.away_team_id = a.id
-      and h.slug = 't-a' and a.slug = 't-b';
-  `);
-  const afterDelete = (
-    await db.query(`
-      select s.points from public.standings s
-      join public.teams tm on tm.id = s.team_id where tm.slug = 't-a'
-    `)
-  ).rows[0];
-  // A endi faqat durang: 1 ochko
-  expect("o'yin o'chirilgach Alfa ochkosi", afterDelete?.points, 1);
-
-  if (failed === 0) console.log("  ✅ ochkolar, gollar va o'rinlar to'g'ri hisoblandi");
-} catch (err) {
-  failed++;
-  console.log(`  ❌ funksional test ishlamadi: ${String(err.message).split("\n")[0]}`);
+// ── 1-ssenariy: toza baza, hamma migratsiyalar ──────────────────────────────
+console.log("1) TOZA BAZA — barcha migratsiyalar ketma-ket:");
+{
+  const db = await newDb();
+  await applyMigrations(db, ALL);
+  await checkSchema(db);
+  await checkStandingsLogic(db);
+  await db.close();
 }
 
-await db.close();
+// ── 2-ssenariy: tushib qolgan migratsiyalarni keyin qo'llash ────────────────
+// Haqiqiy holat (26.07.2026): 0014, 0015, 0016 va 0019 bajarilmagan, lekin
+// 0017 va 0018 bajarilgan. Ya'ni tartib buzilgan — shu holatdan chiqib
+// bo'ladimi, tekshiramiz.
+const SKIPPED = ["0014", "0015", "0016", "0019"];
 
-console.log(failed === 0 ? "\nHammasi joyida." : `\n${failed} ta muammo topildi.`);
-process.exit(failed === 0 ? 0 : 1);
+console.log("\n2) YETIB OLISH — 0014/0015/0016/0019 tushib qolgan bazani tuzatish:");
+{
+  const db = await newDb();
+  const appliedFirst = ALL.filter((f) => !SKIPPED.includes(num(f)) && num(f) < "0020");
+  const catchUp = ALL.filter((f) => SKIPPED.includes(num(f)));
+  const rest = ALL.filter((f) => num(f) >= "0020");
+
+  console.log(`  boshlang'ich holat: ${appliedFirst.map(num).join(", ")}`);
+  await applyMigrations(db, appliedFirst, { quiet: true });
+
+  console.log(`  yetib olish: ${catchUp.map(num).join(", ")} → ${rest.map(num).join(", ")}`);
+  await applyMigrations(db, [...catchUp, ...rest]);
+
+  await checkSchema(db);
+  await checkStandingsLogic(db);
+  await db.close();
+}
+
+console.log(problems === 0 ? "\nHammasi joyida." : `\n${problems} ta muammo topildi.`);
+process.exit(problems === 0 ? 0 : 1);

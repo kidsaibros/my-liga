@@ -30,6 +30,7 @@ with expected(kind, name, migration) as (
     ('function', 'is_admin',                         '0003'),
     ('function', 'prevent_role_self_escalation',     '0009'),
     ('function', 'is_team_coach',                    '0013'),
+    ('function', 'assert_team_name_unique_in_tournament', '0015'),
     ('function', 'is_coach',                         '0016'),
     ('function', 'prevent_team_status_self_approval','0016'),
     ('function', 'notify_team_created',              '0016'),
@@ -53,6 +54,8 @@ with expected(kind, name, migration) as (
 
     -- ── Triggerlar ──────────────────────────────────────────────────────────
     ('trigger', 'trg_prevent_role_self_escalation',      '0009'),
+    ('trigger', 'trg_standings_team_name_unique',        '0015'),
+    ('trigger', 'trg_teams_name_unique_in_tournaments',  '0015'),
     ('trigger', 'trg_prevent_team_status_self_approval', '0016'),
     ('trigger', 'trg_notify_team_created',               '0016'),
     ('trigger', 'trg_matches_recalc_standings',          '0019'),
