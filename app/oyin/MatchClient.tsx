@@ -5,10 +5,17 @@ import { useRouter } from "next/navigation";
 import { Crest } from "@/components/ui";
 import { BackIcon, ShareIcon, CalendarIcon, PinIcon, SendIcon } from "@/components/icons";
 import { createClient } from "@/lib/supabase/client";
+import { useSessionProfile } from "@/components/SessionProvider";
 import { formatMatchDateTime } from "@/lib/format";
 import type { ChatMessage, Lineup, Match, Player, PlayerPosition, Standing, Team } from "@/lib/types";
 
 const tabs = ["Tarkib", "O'yin haqida", "Live chat"];
+
+/** "Javlonbek Rahimov" → "JR" — chat avatarida ko'rsatiladigan bosh harflar. */
+function initialsOf(name: string) {
+  const parts = name.trim().split(/\s+/).slice(0, 2);
+  return parts.map((p) => p[0]?.toUpperCase() ?? "").join("") || "?";
+}
 
 const positionOrder: PlayerPosition[] = ["GK", "DEF", "MID", "FWD"];
 const positionLabel: Record<PlayerPosition, string> = {
@@ -39,7 +46,10 @@ export function MatchClient({
   const [tab, setTab] = useState("Live chat");
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [draft, setDraft] = useState("");
+  const [sendError, setSendError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Chat faqat kirgan foydalanuvchilar uchun — RLS ham aynan shuni talab qiladi.
+  const profile = useSessionProfile();
 
   useEffect(() => {
     const channel = supabase
@@ -62,18 +72,38 @@ export function MatchClient({
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
+  /**
+   * Chat xabarini yuborish.
+   *
+   * MUHIM: `chat_messages` RLS siyosati `insert_own` — `auth.uid() = user_id`
+   * shartini talab qiladi (0004 migratsiyasi). Ilgari bu yerda `user_id`
+   * yuborilmasdi va muallif nomi doim "Siz" edi, natijada HAR BIR xabar RLS
+   * tomonidan rad etilardi, natija esa tekshirilmagani uchun xato jimgina
+   * yo'qolardi. Endi sessiyadan `userId` va haqiqiy ism olinadi, xato esa
+   * foydalanuvchiga ko'rsatiladi.
+   */
   async function sendMessage() {
     const text = draft.trim();
-    if (!text) return;
+    if (!text || !profile) return;
+
+    setSendError(null);
     setDraft("");
-    await supabase.from("chat_messages").insert({
+
+    const { error } = await supabase.from("chat_messages").insert({
       match_id: match.id,
-      author_name: "Siz",
-      author_init: "S",
+      user_id: profile.userId,
+      author_name: profile.fullName,
+      author_init: initialsOf(profile.fullName),
       avatar_gradient: "linear-gradient(140deg,#2FD871,#128A48)",
       text,
       is_bot: false,
     });
+
+    if (error) {
+      // Xabar yuborilmadi — matnni qaytarib beramiz, foydalanuvchi qayta urinsin.
+      setDraft(text);
+      setSendError("Xabar yuborilmadi. Internetni tekshirib, qayta urinib ko'ring.");
+    }
   }
 
   return (
@@ -232,28 +262,45 @@ export function MatchClient({
             ))}
           </div>
 
-          {/* Xabar yozish */}
-          <div className="flex items-center gap-2.5 border-t border-white/[0.06] bg-[rgba(10,14,11,0.85)] px-5 pb-9 pt-3 backdrop-blur-xl">
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") sendMessage();
-              }}
-              placeholder="Xabar yozing..."
-              className="flex-1 rounded-full border border-white/10 bg-white/[0.05] px-[18px] py-3 text-[12.5px] text-[#EDF4EF] outline-none transition-colors focus:border-[rgba(47,216,113,0.6)]"
-            />
-            <button
-              onClick={sendMessage}
-              aria-label="Yuborish"
-              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-[#06130B] transition-transform hover:scale-[1.08]"
-              style={{
-                background: "linear-gradient(140deg,#2FD871,#128A48)",
-                boxShadow: "0 0 20px rgba(47,216,113,0.35)",
-              }}
-            >
-              <SendIcon size={18} />
-            </button>
+          {/* Xabar yozish — faqat kirgan foydalanuvchi uchun (RLS ham shuni talab qiladi) */}
+          <div className="border-t border-white/[0.06] bg-[rgba(10,14,11,0.85)] px-5 pb-9 pt-3 backdrop-blur-xl">
+            {sendError && (
+              <div className="mb-2 text-center text-[11px] text-[#E8A0A0]" role="alert">
+                {sendError}
+              </div>
+            )}
+
+            {profile ? (
+              <div className="flex items-center gap-2.5">
+                <input
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") sendMessage();
+                  }}
+                  maxLength={500}
+                  placeholder="Xabar yozing..."
+                  aria-label="Chat xabari"
+                  className="flex-1 rounded-full border border-white/10 bg-white/[0.05] px-[18px] py-3 text-[12.5px] text-[#EDF4EF] outline-none transition-colors focus:border-[rgba(47,216,113,0.6)]"
+                />
+                <button
+                  onClick={sendMessage}
+                  disabled={draft.trim() === ""}
+                  aria-label="Yuborish"
+                  className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-[#06130B] transition-transform hover:scale-[1.08] disabled:opacity-40 disabled:hover:scale-100"
+                  style={{
+                    background: "linear-gradient(140deg,#2FD871,#128A48)",
+                    boxShadow: "0 0 20px rgba(47,216,113,0.35)",
+                  }}
+                >
+                  <SendIcon size={18} />
+                </button>
+              </div>
+            ) : (
+              <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[12px] text-[rgba(237,244,239,0.5)]">
+                Chatda yozish uchun hisobingizga kiring
+              </div>
+            )}
           </div>
         </>
       ) : tab === "Tarkib" ? (
