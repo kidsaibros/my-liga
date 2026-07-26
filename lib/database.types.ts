@@ -498,6 +498,7 @@ export type Database = {
       is_admin: { Args: Record<string, never>; Returns: boolean };
       is_coach: { Args: Record<string, never>; Returns: boolean };
       is_team_coach: { Args: { p_team_id: string }; Returns: boolean };
+      recalc_standings: { Args: { p_tournament_id: string }; Returns: undefined };
     };
 
     Enums: Record<never, never>;

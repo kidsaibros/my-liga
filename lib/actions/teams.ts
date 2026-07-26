@@ -47,6 +47,13 @@ async function attachToTournament(
     .from("standings")
     .insert({ tournament_id: tournamentId, team_id: teamId, pos: nextPos });
   if (error) return { error: friendlyDbError(error.message, error.code) };
+
+  // Yangi jamoa qo'shilgach o'rinlarni qayta raqamlaymiz (0019 migratsiyasidagi
+  // funksiya). Trigger faqat `matches` o'zgarganda ishlaydi, shuning uchun bu
+  // yerda aniq chaqirilmasa, yangi jamoa ro'yxat oxirida "qo'lda" qo'yilgan
+  // pos bilan qolib ketardi.
+  await supabase.rpc("recalc_standings", { p_tournament_id: tournamentId });
+
   return { error: null };
 }
 

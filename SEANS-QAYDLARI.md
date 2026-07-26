@@ -240,6 +240,53 @@ ko'chirish sezilarli yutuq beradi — bu kod bilan hal qilinmaydi.
 
 ---
 
+## Production o'lchovi — natija
+
+`npm run build` + `npm start -p 3001` da o'lchandi (median, 6 ta so'rov):
+
+| Yo'nalish | Dev (3000) | Production (3001) |
+|---|---|---|
+| `/turnirlar` | 469ms | **11ms** |
+| `/statistika` | 467ms | **9ms** |
+| `/yangiliklar` | 480ms | **10ms** |
+| `/turnirlar/dxx-kubogi` | ~470ms | **11ms** |
+
+Birinchi so'rov keshni to'ldiradi (~450ms = bitta Supabase borish-kelishi),
+keyingilari ~10ms. Ya'ni `"use cache"` production'da mukammal ishlayapti.
+
+Bosh sahifa (`/`) o'lchovda 651ms bo'lib qolgan edi — chunki u kesh qatlamidan
+foydalanmasdan Supabase'ga to'g'ridan-to'g'ri 3 ta so'rov yuborardi. U ham
+`getHomeData()` ga o'tkazildi.
+
+**Xulosa:** region ko'chirish shoshilinch emas. Kesh muddati ichidagi so'rovlar
+~10ms, faqat kesh yangilanganda bir marta ~450ms to'lanadi.
+
+---
+
+## Admin panelda «O'yinlar» bo'limi (yangi)
+
+Loyihaning asosiy kamchiligi — `matches` jadvaliga yozib bo'lmasligi — yopildi.
+
+**Qo'shildi:**
+
+- `supabase/migrations/0018_match_integrity.sql` — jamoa o'zi bilan o'ynay
+  olmasligi, manfiy hisob taqiqi, daqiqa 0–130 oralig'i, aniq dublikat taqiqi,
+  bir vaqtda faqat bitta «asosiy» uchrashuv (unikal indeks).
+- `matchSchema` va `matchScoreSchema` (Zod). `matchScoreSchema` jonli
+  bo'lmagan o'yinda `minute` ni avtomat `null` ga tushiradi.
+- `lib/actions/matches.ts` — `createMatch`, `updateMatch`, `updateMatchScore`,
+  `deleteMatch`. Yangi «asosiy» belgilanganda eskisi avtomat tushiriladi;
+  o'yin yakunlanganda `is_featured` o'chadi.
+- `app/admin/MatchesPanel.tsx` — turnir bo'yicha filtr, uchrashuv yaratish/
+  tahrirlash/o'chirish, alohida tez «Hisob» rejimi (hisob + holat + daqiqa).
+
+**❗ Diqqat: `standings` hali avtomatik yangilanmaydi.** Hisob kiritsangiz
+«Natijalar» tabida ko'rinadi, lekin «Jadval» tabidagi ochkolar o'zgarmaydi —
+buning uchun alohida trigger kerak (siz «faqat admin panel» variantini
+tanlagansiz). Bu keyingi qadam.
+
+---
+
 ## Loyiha holati — inventarizatsiya (26.07.2026)
 
 Kod hajmi: **8 608 qator** (app + components + lib), 9 sahifa, 15 ta action fayli,

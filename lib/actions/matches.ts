@@ -21,6 +21,9 @@ function revalidateMatches() {
   // Turnir sahifasidagi «O'yinlar»/«Natijalar» tablari va bosh sahifadagi
   // «Yaqin o'yinlar» ro'yxati shu tegga bog'langan.
   revalidateTag(CACHE_TAGS.matches, "max");
+  // 0019 migratsiyasidagi trigger o'yin o'zgarganda `standings` ni qayta
+  // hisoblaydi — «Jadval» tabi ham eskirgan bo'lib qoladi.
+  revalidateTag(CACHE_TAGS.standings, "max");
 }
 
 /**
