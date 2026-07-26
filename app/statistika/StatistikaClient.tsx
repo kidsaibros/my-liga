@@ -25,12 +25,15 @@ export function StatistikaClient({ players }: { players: Scorer[] }) {
   const [tab, setTab] = useState<StatTabId>("top");
 
   const rows = useMemo(() => {
-    const sorted = [...players].sort((a, b) => {
-      if (tab === "top") return b.goals - a.goals;
-      if (tab === "assist") return b.assists - a.assists;
-      return b.goals + b.assists - (a.goals + a.assists);
-    });
-    return sorted.slice(0, 5);
+    // Tanlangan tabga tegishli ko'rsatkichi 0 bo'lganlarni ko'rsatmaymiz —
+    // «Assistentlar» ro'yxatida 0 uzatmali o'yinchi turishi mantiqsiz.
+    const value = (p: Scorer) =>
+      tab === "top" ? p.goals : tab === "assist" ? p.assists : p.goals + p.assists;
+
+    return [...players]
+      .filter((p) => value(p) > 0)
+      .sort((a, b) => value(b) - value(a) || a.player_name.localeCompare(b.player_name))
+      .slice(0, 5);
   }, [players, tab]);
 
   return (
@@ -41,6 +44,15 @@ export function StatistikaClient({ players }: { players: Scorer[] }) {
         <PillTabs tabs={statTabs} active={tab} onChange={setTab} />
 
         <div className="flex flex-col gap-2.5">
+          {rows.length === 0 && (
+            <div
+              className="rounded-[18px] border border-white/[0.07] bg-white/[0.03] p-6 text-center text-[13px]"
+              style={{ color: "rgba(237,244,239,0.45)" }}
+            >
+              Hozircha ma&apos;lumot yo&apos;q — statistika o&apos;yin natijalari kiritilgach
+              to&apos;ldiriladi
+            </div>
+          )}
           {rows.map((p, i) => {
             const rs = rankStyles[i] ?? rankDefault;
             const value = tab === "top" ? p.goals : tab === "assist" ? p.assists : p.goals + p.assists;
