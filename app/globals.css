@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
+
+  /* Brend ranglari — Tailwind utility sifatida (bg-brand-emerald, text-brand-gold, ...) */
+  --color-brand-emerald: #0e9f6e;
+  --color-brand-emerald-light: #22c55e;
+  --color-brand-emerald-dark: #065f46;
+  --color-brand-gold: #f5c24b;
+  --color-brand-red: #ef4444;
+  --color-brand-red-dark: #dc2626;
+  --color-brand-blue: #3b82f6;
+  --color-brand-blue-light: #93c5fd;
+
+  /* Yorug'/qorong'i o'rtasida almashadigan semantik tokenlar (pastda e'lon qilingan) */
+  --color-bg: var(--bg);
+  --color-bg-soft: var(--bg-soft);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+  --color-fg: var(--fg);
+  --color-fg-soft: var(--fg-soft);
+  --color-fg-muted: var(--fg-muted);
+}
+
+:root[data-theme="light"] {
+  --bg: #fafafa;
+  --bg-soft: #f3f4f6;
+  --card: #ffffff;
+  --border: #f1f2f4;
+  --border-soft: #f5f6f8;
+  --fg: #0f172a;
+  --fg-soft: #6b7280;
+  --fg-muted: #9ca3af;
+}
+
+:root[data-theme="dark"] {
+  --bg: #1e2425;
+  --bg-soft: #181d1e;
+  --card: #262e2f;
+  --border: #141819;
+  --border-soft: #2e3739;
+  --fg: #f4f7f6;
+  --fg-soft: #9ba7a5;
+  --fg-muted: #6e7b79;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-brand-emerald);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--color-brand-emerald-light);
+}
+
+/* Phone shell — full screen on mobile, centered device frame on desktop */
+.app-frame {
+  position: relative;
+  margin: 0 auto;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.app-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  /* BottomNav endi position:absolute bilan kontent ustida suzadi (dizayn bilan 1:1) —
+     shu bo'shliq har bir ekranning oxirgi elementi nav ostida qolib ketmasligi uchun. */
+  padding-bottom: 96px;
+}
+.app-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ichki gorizontal-scroll qatorlar (Yaqin o'yinlar, liga-chiplar) uchun —
+   inline style'dagi scrollbarWidth Chrome/Edge'da ishlamaydi, shuning uchun sinf kerak. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 480px) {
+  body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 28px 16px;
+    background: radial-gradient(1400px 700px at 18% -12%, rgba(14, 159, 110, 0.1), transparent 60%),
+      radial-gradient(1000px 600px at 85% 8%, rgba(14, 159, 110, 0.05), transparent 55%), var(--bg);
+  }
+  .app-frame {
+    width: 430px;
+    height: 874px;
+    max-height: calc(100vh - 56px);
+    border-radius: 46px;
+    border: 1px solid var(--border);
+    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes livePing {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+@keyframes livePulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+@keyframes glowDrift {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+@keyframes loadbar {
+  0% {
+    width: 8%;
+  }
+  50% {
+    width: 78%;
+  }
+  100% {
+    width: 96%;
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.6s ease both;
+}
+
+/* loading.tsx dagi "suyak" bloklari uchun yumshoq pulsatsiya */
+@keyframes skeletonPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+.skeleton-pulse {
+  animation: skeletonPulse 1.3s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-pulse {
+    animation: none;
+    opacity: 0.7;
+  }
+}
