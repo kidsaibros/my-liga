@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createMatchEvent, deleteMatchEvent, listMatchEvents } from "@/lib/actions/match-events";
 import type { Match, MatchEvent, MatchEventType, Player } from "@/lib/types";
 
@@ -37,17 +37,36 @@ export function MatchEventsEditor({
     minute: "",
   });
 
+  /**
+   * `onError` ni ref orqali ushlaymiz. Sababi: ota komponent uni inline arrow
+   * sifatida uzatadi (`onError={(msg) => setToast(...)}`), ya'ni har renderda
+   * yangi havola. Agar u useEffect bog'liqligida tursa, hisob maydoniga
+   * yozilgan HAR BIR harf hodisalarni serverdan qayta yuklardi.
+   * Effekt faqat `match.id` ga bog'liq bo'lishi kerak.
+   */
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+
+  const reportError = useCallback((msg: string) => onErrorRef.current(msg), []);
+
   useEffect(() => {
     let alive = true;
     listMatchEvents(match.id).then((r) => {
       if (!alive) return;
-      if (r.error !== null) onError(r.error);
-      else setEvents(r.data);
+      if (r.error !== null) {
+        reportError(r.error);
+        // Bo'sh ro'yxatga tushiramiz — aks holda «Yuklanmoqda...» abadiy qoladi.
+        setEvents([]);
+      } else {
+        setEvents(r.data);
+      }
     });
     return () => {
       alive = false;
     };
-  }, [match.id, onError]);
+  }, [match.id, reportError]);
 
   const teamName = (id: string) =>
     id === match.home_team_id ? match.home_team.name : match.away_team.name;

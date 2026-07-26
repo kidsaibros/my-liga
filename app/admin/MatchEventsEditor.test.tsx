@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Match, MatchEvent, Player, Team } from "@/lib/types";
 
@@ -205,6 +205,38 @@ describe("MatchEventsEditor", () => {
 
     await waitFor(() => expect(onError).toHaveBeenCalledWith("Ruxsat yo'q"));
     expect(screen.queryByText("Kimdir")).toBeNull();
+  });
+
+  it("ota komponent qayta render bo'lganda hodisalarni QAYTA yuklamaydi", async () => {
+    // MatchesPanel `onError` ni inline arrow sifatida uzatadi — ya'ni har render
+    // yangi funksiya. Agar u useEffect bog'liqligida bo'lsa, hisob maydoniga
+    // yozilgan har bir harf serverga qayta so'rov yuborardi.
+    listMatchEvents.mockResolvedValue({ data: [existingEvent], error: null });
+
+    const { rerender } = render(
+      <MatchEventsEditor match={match} players={players} onError={() => {}} />
+    );
+    await screen.findByText("Azibek Rahimov");
+    expect(listMatchEvents).toHaveBeenCalledTimes(1);
+
+    // Ota qayta render bo'ldi → yangi onError havolasi
+    await act(async () => {
+      rerender(<MatchEventsEditor match={match} players={players} onError={() => {}} />);
+    });
+    await act(async () => {
+      rerender(<MatchEventsEditor match={match} players={players} onError={() => {}} />);
+    });
+
+    expect(listMatchEvents).toHaveBeenCalledTimes(1);
+  });
+
+  it("yuklashda xato bo'lsa «Yuklanmoqda» holatida qotib qolmaydi", async () => {
+    listMatchEvents.mockResolvedValue({ data: null, error: "Tarmoq xatosi" });
+    const onError = renderEditor();
+
+    await waitFor(() => expect(onError).toHaveBeenCalledWith("Tarmoq xatosi"));
+    expect(await screen.findByText(/Hali hodisa yo'q/)).toBeDefined();
+    expect(screen.queryByText("Yuklanmoqda...")).toBeNull();
   });
 
   it("jamoa almashtirilganda taklif ro'yxati ham almashadi", async () => {

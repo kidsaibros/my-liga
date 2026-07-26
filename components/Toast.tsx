@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 /** Server Action natijasidan keyin qisqa muddatli xabar (muvaffaqiyat/xato). */
 export function Toast({
@@ -12,10 +12,22 @@ export function Toast({
   kind?: "success" | "error";
   onDone: () => void;
 }) {
+  /**
+   * `onDone` ni ref orqali ushlaymiz. Chaqiruvchilar uni inline arrow sifatida
+   * uzatadi (`onDone={() => setToast(null)}`), ya'ni har renderda yangi havola.
+   * Agar u bog'liqlikda tursa, ota komponent har qayta renderda taymerni nolga
+   * qaytarardi — masalan admin hisob maydoniga yozayotganda xabar ekranda
+   * abadiy qolib ketardi. Taymer faqat bir marta, montaj paytida qo'yiladi.
+   */
+  const onDoneRef = useRef(onDone);
   useEffect(() => {
-    const t = setTimeout(onDone, 2800);
-    return () => clearTimeout(t);
+    onDoneRef.current = onDone;
   }, [onDone]);
+
+  useEffect(() => {
+    const t = setTimeout(() => onDoneRef.current(), 2800);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <div

@@ -35,9 +35,11 @@ async function clearOtherFeatured(
   supabase: Awaited<ReturnType<typeof createClient>>,
   exceptId?: string
 ) {
-  const q = supabase.from("matches").update({ is_featured: false }).eq("is_featured", true);
-  if (exceptId) q.neq("id", exceptId);
-  await q;
+  // Filtrni aniq qayta o'zlashtiramiz — PostgREST builder'i `this` qaytarsa ham,
+  // natijani tashlab yuborish keyinchalik sezilmay ketadigan xatoga olib keladi.
+  const base = supabase.from("matches").update({ is_featured: false }).eq("is_featured", true);
+  const query = exceptId ? base.neq("id", exceptId) : base;
+  await query;
 }
 
 export async function createMatch(input: unknown): Promise<ActionResult<Match>> {
