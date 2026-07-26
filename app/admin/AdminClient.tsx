@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PillTabs } from "@/components/ui";
 import { BackIcon } from "@/components/icons";
-import type { Team, Tournament, News, Sponsor, AppSettings, Profile } from "@/lib/types";
+import type { Match, Team, Tournament, News, Sponsor, AppSettings, Profile } from "@/lib/types";
 import { TournamentsPanel } from "./TournamentsPanel";
+import { MatchesPanel } from "./MatchesPanel";
 import { TeamsPanel } from "./TeamsPanel";
 import { NewsPanel } from "./NewsPanel";
 import { SponsorsPanel } from "./SponsorsPanel";
@@ -13,10 +14,18 @@ import { SettingsPanel } from "./SettingsPanel";
 import { CoachesPanel } from "./CoachesPanel";
 import { NotificationsBell } from "./NotificationsBell";
 
-type AdminTabId = "turnirlar" | "jamoalar" | "murabbiylar" | "yangiliklar" | "homiylar" | "sozlamalar";
+type AdminTabId =
+  | "turnirlar"
+  | "oyinlar"
+  | "jamoalar"
+  | "murabbiylar"
+  | "yangiliklar"
+  | "homiylar"
+  | "sozlamalar";
 
 const adminTabs: { id: AdminTabId; label: string }[] = [
   { id: "turnirlar", label: "Turnirlar" },
+  { id: "oyinlar", label: "O'yinlar" },
   { id: "jamoalar", label: "Jamoalar" },
   { id: "murabbiylar", label: "Murabbiylar" },
   { id: "yangiliklar", label: "Yangiliklar" },
@@ -26,6 +35,7 @@ const adminTabs: { id: AdminTabId; label: string }[] = [
 
 export function AdminClient({
   tournaments,
+  matches,
   teams,
   news,
   sponsors,
@@ -33,6 +43,7 @@ export function AdminClient({
   users,
 }: {
   tournaments: Tournament[];
+  matches: Match[];
   teams: Team[];
   news: News[];
   sponsors: Sponsor[];
@@ -58,6 +69,9 @@ export function AdminClient({
       <PillTabs tabs={adminTabs} active={tab} onChange={setTab} />
 
       {tab === "turnirlar" && <TournamentsPanel initialTournaments={tournaments} />}
+      {tab === "oyinlar" && (
+        <MatchesPanel initialMatches={matches} tournaments={tournaments} teams={teams} />
+      )}
       {tab === "jamoalar" && <TeamsPanel initialTeams={teams} tournaments={tournaments} coaches={users} />}
       {tab === "murabbiylar" && <CoachesPanel initialUsers={users} teams={teams} />}
       {tab === "yangiliklar" && <NewsPanel initialNews={news} />}

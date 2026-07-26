@@ -3,6 +3,8 @@ import {
   appSettingsSchema,
   coachInviteSchema,
   idSchema,
+  matchSchema,
+  matchScoreSchema,
   playerSchema,
   sponsorSchema,
   teamSchema,
@@ -155,6 +157,85 @@ describe("appSettingsSchema", () => {
 
   it("noto'g'ri telegram havolasini rad etadi", () => {
     expect(appSettingsSchema.safeParse({ telegram_support_url: "t.me/support" }).success).toBe(false);
+  });
+});
+
+describe("matchSchema", () => {
+  const A = "3f1a5c9e-7b2d-4e8a-9c31-6d0f4b8e2a71";
+  const B = "8c2d6e10-4a3b-4f7c-8d92-1e5a7c3b9f04";
+  const T = "d41b7f28-95c6-4a1e-b3d7-2f8e6c04a915";
+
+  const valid = {
+    tournament_id: T,
+    home_team_id: A,
+    away_team_id: B,
+    kickoff_at: "2024-05-25T18:00",
+    status: "scheduled",
+  };
+
+  it("to'g'ri uchrashuvni qabul qiladi va sanani ISO ga o'giradi", () => {
+    const r = matchSchema.safeParse(valid);
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.kickoff_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it("jamoa o'zi bilan o'ynashiga yo'l qo'ymaydi", () => {
+    const r = matchSchema.safeParse({ ...valid, away_team_id: A });
+    expect(r.success).toBe(false);
+    if (!r.success) expect(r.error.issues[0].path).toEqual(["away_team_id"]);
+  });
+
+  it("noto'g'ri sanani rad etadi", () => {
+    expect(matchSchema.safeParse({ ...valid, kickoff_at: "kecha" }).success).toBe(false);
+  });
+
+  it("noma'lum holatni rad etadi", () => {
+    expect(matchSchema.safeParse({ ...valid, status: "postponed" }).success).toBe(false);
+  });
+
+  it("bo'sh guruh va joyni undefined qiladi", () => {
+    const r = matchSchema.safeParse({ ...valid, group_name: "", venue: "" });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.group_name).toBeUndefined();
+      expect(r.data.venue).toBeUndefined();
+    }
+  });
+
+  it("is_featured standart holatda false", () => {
+    const r = matchSchema.safeParse(valid);
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.is_featured).toBe(false);
+  });
+});
+
+describe("matchScoreSchema", () => {
+  it("jonli o'yinda daqiqani saqlaydi", () => {
+    const r = matchScoreSchema.safeParse({ home_score: 2, away_score: 1, status: "live", minute: 72 });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.minute).toBe(72);
+  });
+
+  it("yakunlangan o'yinda daqiqani null qiladi", () => {
+    const r = matchScoreSchema.safeParse({ home_score: 3, away_score: 1, status: "finished", minute: 90 });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.minute).toBeNull();
+  });
+
+  it("jonli o'yinda daqiqa berilmasa 0 qo'yadi", () => {
+    const r = matchScoreSchema.safeParse({ home_score: 0, away_score: 0, status: "live" });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.minute).toBe(0);
+  });
+
+  it("manfiy hisobni rad etadi", () => {
+    expect(matchScoreSchema.safeParse({ home_score: -1, away_score: 0, status: "finished" }).success).toBe(false);
+  });
+
+  it("130 dan katta daqiqani rad etadi", () => {
+    expect(
+      matchScoreSchema.safeParse({ home_score: 0, away_score: 0, status: "live", minute: 200 }).success
+    ).toBe(false);
   });
 });
 

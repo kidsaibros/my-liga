@@ -84,6 +84,43 @@ export const tournamentSchema = z
   });
 export type TournamentInput = z.infer<typeof tournamentSchema>;
 
+// ── matches (uchrashuvlar) ─────────────────────────────────
+export const matchStatusSchema = z.enum(["scheduled", "live", "finished"]);
+
+/** Uchrashuv yaratish/tahrirlash. Hisob va daqiqa alohida sxema bilan yangilanadi. */
+export const matchSchema = z
+  .object({
+    tournament_id: idSchema,
+    home_team_id: idSchema,
+    away_team_id: idSchema,
+    group_name: emptyToUndefined(z.string().trim().max(30)),
+    venue: emptyToUndefined(z.string().trim().max(200)),
+    // datetime-local kiritmasi ("2024-05-25T18:00") ham, to'liq ISO ham qabul qilinadi
+    kickoff_at: z.coerce.date("Boshlanish vaqti noto'g'ri").transform((d) => d.toISOString()),
+    status: matchStatusSchema,
+    is_featured: z.coerce.boolean().default(false),
+  })
+  .refine((v) => v.home_team_id !== v.away_team_id, {
+    message: "Jamoa o'zi bilan o'ynay olmaydi — ikki xil jamoa tanlang",
+    path: ["away_team_id"],
+  });
+export type MatchInput = z.infer<typeof matchSchema>;
+
+/**
+ * Hisob va o'yin holatini yangilash. `minute` faqat jonli o'yinda ma'noga ega,
+ * shuning uchun boshqa holatlarda `null` ga tushiriladi (DB'dagi
+ * matches_minute_range_check bilan mos).
+ */
+export const matchScoreSchema = z
+  .object({
+    home_score: z.coerce.number().int().min(0, "Manfiy bo'lishi mumkin emas").max(99),
+    away_score: z.coerce.number().int().min(0, "Manfiy bo'lishi mumkin emas").max(99),
+    status: matchStatusSchema,
+    minute: z.coerce.number().int().min(0).max(130).nullable().optional(),
+  })
+  .transform((v) => ({ ...v, minute: v.status === "live" ? (v.minute ?? 0) : null }));
+export type MatchScoreInput = z.infer<typeof matchScoreSchema>;
+
 // ── news ───────────────────────────────────────────────────
 export const newsSchema = z.object({
   title: z.string().trim().min(1, "Sarlavha majburiy").max(200),
