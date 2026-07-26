@@ -5,6 +5,16 @@ import type { Sponsor } from "@/lib/types";
 
 const FALLBACK_BG = "linear-gradient(120deg,#0F4324 0%,#0A2415 55%,#081710 100%)";
 
+/**
+ * Faqat http/https havolalarni qabul qilamiz. Zod sxemasi buni allaqachon
+ * tekshiradi, lekin bazada validatsiya qo'shilishidan OLDIN saqlangan qatorlar
+ * bo'lishi mumkin — `javascript:` havola `href` ga tushsa XSS bo'lardi.
+ */
+function safeHref(url: string | null): string | null {
+  if (!url) return null;
+  return /^https?:\/\//i.test(url.trim()) ? url.trim() : null;
+}
+
 /** Bosh sahifadagi homiylar banneri — MY LIGA App.dc.html qatorlar 86-102 bilan 1:1. */
 export function SponsorBanner({ sponsors }: { sponsors: Sponsor[] }) {
   const [idx, setIdx] = useState(0);
@@ -42,29 +52,56 @@ export function SponsorBanner({ sponsors }: { sponsors: Sponsor[] }) {
           transform: `translateX(-${idx * 100}%)`,
         }}
       >
-        {slides.map((sp) => (
-          <div
-            key={sp.id}
-            style={{
-              flex: "none",
-              width: "100%",
-              height: 118,
-              position: "relative",
-              background: sp.logo_url ? `url(${sp.logo_url})` : FALLBACK_BG,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontWeight: 800,
-              fontSize: 18,
-              letterSpacing: 0.5,
-            }}
-          >
-            {sp.name}
-          </div>
-        ))}
+        {slides.map((sp, i) => {
+          const active = i === idx;
+          const href = safeHref(sp.link_url);
+
+          // Homiy nomi rasm ustiga YOZILMAYDI: logotipning o'zi brendni ko'rsatadi,
+          // matn esa uni to'sib qo'yardi. Nom faqat ekran o'quvchilar va hover
+          // uchun `aria-label`/`title` da qoladi.
+          const content = sp.logo_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={sp.logo_url}
+              alt={sp.name}
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
+          ) : (
+            <div style={{ width: "100%", height: "100%", background: FALLBACK_BG }} />
+          );
+
+          const style: React.CSSProperties = {
+            flex: "none",
+            width: "100%",
+            height: 118,
+            position: "relative",
+            overflow: "hidden",
+            display: "block",
+          };
+
+          // Havola bo'lsa — butun banner bosiladigan bo'ladi. Yangi oynada
+          // ochiladi; `noopener noreferrer` — tashqi sayt `window.opener`
+          // orqali ilovaga ta'sir qila olmasligi uchun.
+          return href ? (
+            <a
+              key={sp.id}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={sp.name}
+              title={sp.name}
+              // Ko'rinmayotgan slaydlarga Tab bilan tushib qolmaslik uchun
+              tabIndex={active ? 0 : -1}
+              style={style}
+            >
+              {content}
+            </a>
+          ) : (
+            <div key={sp.id} aria-label={sp.name} title={sp.name} style={style}>
+              {content}
+            </div>
+          );
+        })}
       </div>
       <div
         style={{
