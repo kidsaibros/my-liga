@@ -5,12 +5,8 @@ import { LeagueChips } from "@/components/LeagueChips";
 import { getHomeData } from "@/lib/cache";
 import { formatMatchDateTime } from "@/lib/format";
 import { getSessionProfile } from "@/lib/auth";
+import { Avatar } from "@/components/Avatar";
 import type { Match } from "@/lib/types";
-
-function initialsOf(name: string) {
-  const parts = name.trim().split(/\s+/).slice(0, 2);
-  return parts.map((p) => p[0]?.toUpperCase() ?? "").join("") || "?";
-}
 
 /** Bosh sahifa — MY LIGA App.dc.html "HOME" bloki bilan 1:1 (qatorlar 65-125). */
 export default async function HomePage() {
@@ -36,34 +32,7 @@ export default async function HomePage() {
             borderBottom: "1px solid var(--border)",
           }}
         >
-          {profile?.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={profile.avatarUrl}
-              alt={greetName}
-              width={46}
-              height={46}
-              style={{ width: 46, height: 46, borderRadius: "50%", objectFit: "cover", flex: "none" }}
-            />
-          ) : (
-            <div
-              style={{
-                width: 46,
-                height: 46,
-                borderRadius: "50%",
-                background: "#065F46",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 700,
-                fontSize: 16,
-                flex: "none",
-              }}
-            >
-              {initialsOf(greetName)}
-            </div>
-          )}
+          <Avatar url={profile?.avatarUrl} name={greetName} size={46} glow="none" />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 13, color: "var(--fg-soft)", fontWeight: 500 }}>Salom,</div>
             <div style={{ fontSize: 18, fontWeight: 800 }}>{greetName}!</div>

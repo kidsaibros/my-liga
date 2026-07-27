@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Sheet } from "@/components/ui";
+import { Avatar } from "@/components/Avatar";
 import { CameraIcon } from "@/components/icons";
 import { updateFullName, updateNotificationPrefs, uploadAvatar } from "@/lib/actions/profile";
 import type { Profile } from "@/lib/types";
@@ -73,24 +74,7 @@ export function SettingsSheet({
       <div className="flex flex-col gap-5 pb-2">
         <div className="flex flex-col items-center gap-2.5">
           <div className="relative">
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarUrl}
-                alt={name}
-                width={80}
-                height={80}
-                className="h-20 w-20 rounded-full object-cover"
-                style={{ border: "1px solid var(--border)" }}
-              />
-            ) : (
-              <div
-                className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-extrabold"
-                style={{ background: "linear-gradient(140deg,#22C55E,#0E9F6E)", color: "#062016" }}
-              >
-                {name.slice(0, 1).toUpperCase()}
-              </div>
-            )}
+            <Avatar url={avatarUrl} name={name} size={80} glow="none" />
             <button
               type="button"
               onClick={() => fileRef.current?.click()}

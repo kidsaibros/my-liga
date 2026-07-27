@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { Screen } from "@/components/Screen";
-import { Crest, Badge } from "@/components/ui";
+import { Badge } from "@/components/ui";
+import { Avatar } from "@/components/Avatar";
 import { HelpSheet } from "./HelpSheet";
 import { FavoritesSheet } from "./FavoritesSheet";
 import { SettingsSheet } from "./SettingsSheet";
@@ -121,27 +122,7 @@ export function ProfilClient({
   return (
     <Screen>
       <div className="flex flex-col items-center gap-4 px-5 pt-6 pb-6">
-        {profile.avatar_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={profile.avatar_url}
-            alt={profile.full_name}
-            width={88}
-            height={88}
-            className="h-[88px] w-[88px] rounded-full object-cover"
-            style={{ border: "1px solid var(--border)", boxShadow: "0 0 34px rgba(14,159,110,0.25)" }}
-          />
-        ) : (
-          <Crest
-            gradient={profile.team?.crest_gradient ?? "linear-gradient(140deg,#22C55E,#0E9F6E)"}
-            init={profile.full_name.slice(0, 1).toUpperCase()}
-            size={88}
-            fontSize={32}
-            color="#062016"
-            border="transparent"
-            glow="0 0 34px rgba(14,159,110,0.35)"
-          />
-        )}
+        <Avatar url={profile.avatar_url} name={profile.full_name} size={88} glow="0 0 34px rgba(14,159,110,0.35)" />
 
         <div className="text-center">
           <div className="text-xl font-extrabold tracking-tight">{profile.full_name}</div>
