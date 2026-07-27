@@ -10,6 +10,7 @@ import { logout } from "@/lib/actions/auth";
 import { Crest, PillTabs } from "@/components/ui";
 import { PlusIcon, StarIcon, BackIcon } from "@/components/icons";
 import { Toast } from "@/components/Toast";
+import { ImageUpload } from "@/components/ImageUpload";
 import type { Team, PlayerStat, Player, Lineup, PlayerPosition, Formation, Tournament } from "@/lib/types";
 
 const FORMATIONS: Formation[] = ["4-3-3", "4-4-2", "4-2-3-1", "3-5-2", "3-4-3"];
@@ -324,15 +325,14 @@ function RosterTab({
             <Field label="Ism-familiya">
               <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls} />
             </Field>
-            <Field label="Fotosurat (URL, ixtiyoriy)">
-              <input
-                type="url"
-                placeholder="https://.../rasm.jpg"
-                value={form.photo_url}
-                onChange={(e) => setForm({ ...form, photo_url: e.target.value })}
-                className={inputCls}
-              />
-            </Field>
+            <ImageUpload
+              label="Fotosurat (ixtiyoriy)"
+              category="player"
+              shape="circle"
+              value={form.photo_url || null}
+              onChange={(url) => setForm({ ...form, photo_url: url })}
+              hint="JPG, PNG yoki WEBP · 5 MB gacha"
+            />
 
             {error && <div className="text-[11.5px] text-[#F87171]">{error}</div>}
 

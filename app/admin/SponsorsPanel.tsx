@@ -5,6 +5,7 @@ import { createSponsor, updateSponsor, deleteSponsor } from "@/lib/actions/spons
 import type { Sponsor } from "@/lib/types";
 import { PlusIcon } from "@/components/icons";
 import { Toast } from "@/components/Toast";
+import { ImageUpload } from "@/components/ImageUpload";
 
 type FormState = {
   name: string;
@@ -169,14 +170,14 @@ export function SponsorsPanel({ initialSponsors }: { initialSponsors: Sponsor[] 
                 className={inputCls}
               />
             </Field>
-            <Field label="Reklama rasmi (URL)">
-              <input
-                placeholder="https://.../banner.jpg"
-                value={form.logo_url}
-                onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
-                className={inputCls}
-              />
-            </Field>
+            <ImageUpload
+              label="Reklama rasmi"
+              category="sponsor"
+              shape="rect"
+              value={form.logo_url || null}
+              onChange={(url) => setForm({ ...form, logo_url: url })}
+              hint="JPG, PNG yoki WEBP · 5 MB gacha"
+            />
             <Field label="Havola (link)">
               <input
                 placeholder="https://homiy.uz"

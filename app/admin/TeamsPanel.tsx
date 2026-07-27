@@ -7,6 +7,7 @@ import type { Team, Tournament, Profile, Player } from "@/lib/types";
 import { Crest } from "@/components/ui";
 import { PlusIcon } from "@/components/icons";
 import { Toast } from "@/components/Toast";
+import { slugify } from "@/lib/format";
 
 type FormState = {
   slug: string;
@@ -83,9 +84,14 @@ export function TeamsPanel({
     return () => clearTimeout(timer);
   }, [form.name, form.tournament_id, editingId]);
 
+  // Yangi jamoa yaratilayotganda slug nomdan avtomatik hosil bo'ladi — foydalanuvchi
+  // slug maydonini qo'lda tahrirlasa, avtomatik yangilanish shu forma sessiyasi uchun to'xtaydi.
+  const [slugTouched, setSlugTouched] = useState(false);
+
   function openCreate() {
     setForm(emptyForm);
     setError(null);
+    setSlugTouched(false);
     setEditingId("new");
   }
 
@@ -101,6 +107,7 @@ export function TeamsPanel({
       tournament_id: "",
     });
     setError(null);
+    setSlugTouched(true);
     setEditingId(t.id);
   }
 
@@ -339,7 +346,15 @@ export function TeamsPanel({
             </Field>
 
             <Field label="Nomi">
-              <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls} />
+              <input
+                required
+                value={form.name}
+                onChange={(e) => {
+                  const name = e.target.value;
+                  setForm((f) => ({ ...f, name, slug: slugTouched ? f.slug : slugify(name) }));
+                }}
+                className={inputCls}
+              />
               {form.tournament_id && form.name.trim() && (
                 <div className="mt-1 text-[11px]" style={{ color: nameConflict ? "#E8A0A0" : "rgba(237,244,239,0.4)" }}>
                   {checkingName
@@ -352,7 +367,15 @@ export function TeamsPanel({
             </Field>
             <div className="grid grid-cols-2 gap-2.5">
               <Field label="Slug">
-                <input required value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className={inputCls} />
+                <input
+                  required
+                  value={form.slug}
+                  onChange={(e) => {
+                    setSlugTouched(true);
+                    setForm({ ...form, slug: e.target.value });
+                  }}
+                  className={inputCls}
+                />
               </Field>
               <Field label="Qisqartma (init)">
                 <input
