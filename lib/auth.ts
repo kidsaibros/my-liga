@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { syncProfileRole } from "@/lib/auth-sync";
 import type { ProfileRole } from "@/lib/types";
 
 export type SessionProfile = {
@@ -26,11 +27,29 @@ export const getSessionProfile = cache(async (): Promise<SessionProfile | null> 
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from("profiles")
     .select("role, team_id, full_name, avatar_url")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
+
+  // Profil hali yaratilmagan bo'lsa (OAuth callback sinxronizatsiyasi xato bergan
+  // yoki o'tkazib yuborilgan bo'lsa) — shu yerda yaratamiz. Shunda hech qachon
+  // "profil yaratilmadi" xato ekrani chiqmaydi: har bir kirgan foydalanuvchi
+  // avtomatik ravishda (kamida) oddiy `user` rolida profilga ega bo'ladi.
+  if (!profile) {
+    try {
+      await syncProfileRole(user);
+      const reread = await supabase
+        .from("profiles")
+        .select("role, team_id, full_name, avatar_url")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      profile = reread.data;
+    } catch (err) {
+      console.error("getSessionProfile: profil yaratib bo'lmadi:", err);
+    }
+  }
   if (!profile) return null;
 
   return {

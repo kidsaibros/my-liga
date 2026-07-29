@@ -25,7 +25,20 @@ export async function inviteCoach(input: unknown): Promise<ActionResult<CoachInv
     .single();
   if (error) return { data: null, error: friendlyDbError(error.message, error.code) };
 
+  // Taklif qilingan odam MY LIGA'da allaqachon ro'yxatdan o'tgan bo'lishi mumkin.
+  // Bunday holda uni qayta kirishini kutmasdan, darhol murabbiy qilamiz.
+  // (Ro'yxatdan o'tmagan bo'lsa — kirganda syncProfileRole coach_invites orqali
+  // uni avtomatik coach qiladi. Ya'ni tartibi muhim emas.)
+  // `role = 'user'` sharti super_admin yoki mavjud murabbiyni tasodifan
+  // o'zgartirib yubormaslik uchun.
+  await supabase
+    .from("profiles")
+    .update({ role: "coach" })
+    .eq("email", parsed.data.email)
+    .eq("role", "user");
+
   revalidatePath("/admin");
+  revalidatePath("/profil");
   return { data: data as CoachInvite, error: null };
 }
 
