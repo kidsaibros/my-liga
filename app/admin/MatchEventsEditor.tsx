@@ -108,27 +108,27 @@ export function MatchEventsEditor({
   }
 
   return (
-    <div className="mt-3 flex flex-col gap-2 border-t border-white/[0.07] pt-3">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-[rgba(237,244,239,0.4)]">
+    <div className="mt-3 flex flex-col gap-2 border-t border-[var(--border)] pt-3">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--fg-muted)]">
         O&apos;yin hodisalari
       </div>
 
       {events === null ? (
-        <div className="py-1 text-[11.5px] text-[rgba(237,244,239,0.35)]">Yuklanmoqda...</div>
+        <div className="py-1 text-[11.5px] text-[var(--fg-muted)]">Yuklanmoqda...</div>
       ) : events.length === 0 ? (
-        <div className="py-1 text-[11.5px] text-[rgba(237,244,239,0.35)]">
+        <div className="py-1 text-[11.5px] text-[var(--fg-muted)]">
           Hali hodisa yo&apos;q — gol urganlarni qo&apos;shing
         </div>
       ) : (
         <div className="flex flex-col gap-1.5">
           {events.map((e) => (
             <div key={e.id} className="flex items-center gap-2 text-[11.5px]">
-              <span className="w-8 flex-none text-right text-[rgba(237,244,239,0.45)]">
+              <span className="w-8 flex-none text-right text-[var(--fg-muted)]">
                 {e.minute != null ? `${e.minute}'` : "—"}
               </span>
               <span className="flex-none">{typeMeta(e.type)?.icon}</span>
               <span className="min-w-0 flex-1 truncate font-semibold">{e.player_name}</span>
-              <span className="flex-none truncate text-[10px] text-[rgba(237,244,239,0.4)]">
+              <span className="flex-none truncate text-[10px] text-[var(--fg-muted)]">
                 {teamName(e.team_id)}
               </span>
               <button
@@ -214,4 +214,4 @@ export function MatchEventsEditor({
 }
 
 const inputCls =
-  "rounded-xl border border-white/[0.1] bg-white/[0.05] px-3 py-2 text-[12.5px] text-[#EDF4EF] outline-none focus:border-[rgba(47,216,113,0.5)]";
+  "rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[12.5px] text-[var(--fg)] outline-none focus:border-[rgba(47,216,113,0.5)]";

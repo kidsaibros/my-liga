@@ -19,7 +19,7 @@ export default async function MatchPage() {
 
   if (!match) {
     return (
-      <div className="flex flex-1 items-center justify-center px-5 py-16 text-center text-sm text-[rgba(237,244,239,0.4)]">
+      <div className="flex flex-1 items-center justify-center px-5 py-16 text-center text-sm text-[var(--fg-muted)]">
         Hozircha faol o&apos;yin yo&apos;q
       </div>
     );

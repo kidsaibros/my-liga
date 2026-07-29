@@ -72,7 +72,7 @@ export function AdminSheet({ onClose }: { onClose: () => void }) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[88vh] w-full max-w-md flex-col gap-4 overflow-y-auto rounded-t-[28px] border border-white/[0.08] bg-[#0B0F0C] p-5 sm:rounded-[28px]"
+        className="flex max-h-[88vh] w-full max-w-md flex-col gap-4 overflow-y-auto rounded-t-[28px] border border-[var(--border)] bg-[#0B0F0C] p-5 sm:rounded-[28px]"
       >
         <div className="flex items-center justify-between">
           <h1 className="text-[17px] font-extrabold tracking-tight">Admin panel</h1>
@@ -81,7 +81,7 @@ export function AdminSheet({ onClose }: { onClose: () => void }) {
             <button
               onClick={onClose}
               aria-label="Yopish"
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.08] text-[#EDF4EF] transition hover:bg-white/[0.16]"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--card)] text-[var(--fg)] transition hover:bg-[var(--bg-soft)]"
             >
               <XIcon size={16} />
             </button>
@@ -91,7 +91,7 @@ export function AdminSheet({ onClose }: { onClose: () => void }) {
         <PillTabs tabs={adminTabs} active={tab} onChange={setTab} />
 
         {loading ? (
-          <div className="py-8 text-center text-[12px] text-[rgba(237,244,239,0.45)]">Yuklanmoqda...</div>
+          <div className="py-8 text-center text-[12px] text-[var(--fg-muted)]">Yuklanmoqda...</div>
         ) : (
           <>
             {tab === "turnirlar" && <TournamentsPanel initialTournaments={tournaments} />}

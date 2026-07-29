@@ -71,16 +71,16 @@ export function CoachesPanel({ initialUsers, teams }: { initialUsers: Profile[];
   return (
     <div className="flex flex-col gap-3">
       <div className="text-[13px] font-bold">{users.length} ta ro'yxatdan o'tgan foydalanuvchi</div>
-      <div className="text-[11px] text-[rgba(237,244,239,0.45)]">
+      <div className="text-[11px] text-[var(--fg-muted)]">
         Super Admin — barcha jamoalarni to'liq boshqaradi. Murabbiy — faqat o'ziga biriktirilgan jamoani.
       </div>
 
       <form
         onSubmit={handleInvite}
-        className="flex flex-col gap-2 rounded-[16px] border border-white/[0.07] bg-white/[0.04] p-3.5"
+        className="flex flex-col gap-2 rounded-[16px] border border-[var(--border)] bg-[var(--card)] p-3.5"
       >
         <div className="text-[11.5px] font-bold">Jamoasiz murabbiy sifatida taklif qilish</div>
-        <div className="text-[10.5px] text-[rgba(237,244,239,0.4)]">
+        <div className="text-[10.5px] text-[var(--fg-muted)]">
           Hali ro'yxatdan o'tmagan odam uchun — email orqali taklif qilinadi, u Google bilan kirgach
           avtomatik 'murabbiy' rolini oladi va o'z jamoasini o'zi yaratadi.
         </div>
@@ -91,7 +91,7 @@ export function CoachesPanel({ initialUsers, teams }: { initialUsers: Profile[];
             placeholder="murabbiy@gmail.com"
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
-            className="flex-1 rounded-lg border border-white/[0.1] bg-white/[0.05] px-2.5 py-1.5 text-[11.5px] text-[#EDF4EF] outline-none"
+            className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[11.5px] text-[var(--fg)] outline-none"
           />
           <button
             type="submit"
@@ -110,7 +110,7 @@ export function CoachesPanel({ initialUsers, teams }: { initialUsers: Profile[];
         {users.map((u) => (
           <div
             key={u.user_id}
-            className="flex flex-col gap-2.5 rounded-[16px] border border-white/[0.07] bg-white/[0.04] px-4 py-3"
+            className="flex flex-col gap-2.5 rounded-[16px] border border-[var(--border)] bg-[var(--card)] px-4 py-3"
           >
             <div className="flex items-center gap-3">
               <div
@@ -121,7 +121,7 @@ export function CoachesPanel({ initialUsers, teams }: { initialUsers: Profile[];
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[13px] font-bold">{u.full_name}</div>
-                <div className="mt-0.5 truncate text-[10.5px] text-[rgba(237,244,239,0.45)]">{u.email}</div>
+                <div className="mt-0.5 truncate text-[10.5px] text-[var(--fg-muted)]">{u.email}</div>
               </div>
               {u.role === "coach" && (
                 <span className="flex-shrink-0 rounded-full bg-[rgba(47,216,113,0.14)] px-2.5 py-1 text-[10px] font-extrabold text-[#3BE07C]">
@@ -143,7 +143,7 @@ export function CoachesPanel({ initialUsers, teams }: { initialUsers: Profile[];
                 <select
                   value={selectedTeam[u.user_id ?? ""] ?? teams[0]?.id ?? ""}
                   onChange={(e) => setSelectedTeam((prev) => ({ ...prev, [u.user_id ?? ""]: e.target.value }))}
-                  className="flex-1 rounded-lg border border-white/[0.1] bg-white/[0.05] px-2.5 py-1.5 text-[11.5px] text-[#EDF4EF] outline-none"
+                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[11.5px] text-[var(--fg)] outline-none"
                 >
                   {teams.map((t) => (
                     <option key={t.id} value={t.id}>
@@ -164,7 +164,7 @@ export function CoachesPanel({ initialUsers, teams }: { initialUsers: Profile[];
           </div>
         ))}
         {users.length === 0 && (
-          <div className="rounded-[16px] border border-white/[0.07] bg-white/[0.03] p-6 text-center text-sm text-[rgba(237,244,239,0.45)]">
+          <div className="rounded-[16px] border border-[var(--border)] bg-[var(--card)] p-6 text-center text-sm text-[var(--fg-muted)]">
             Hozircha ro'yxatdan o'tgan foydalanuvchilar yo'q
           </div>
         )}

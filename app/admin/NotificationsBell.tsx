@@ -53,7 +53,7 @@ export function NotificationsBell({ onNavigate }: { onNavigate?: () => void }) {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="Xabarlar"
-        className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.08] text-[#EDF4EF] transition hover:bg-white/[0.16]"
+        className="relative flex h-9 w-9 items-center justify-center rounded-full bg-[var(--card)] text-[var(--fg)] transition hover:bg-[var(--bg-soft)]"
       >
         <BellIcon size={18} />
         {unread > 0 && (
@@ -66,9 +66,9 @@ export function NotificationsBell({ onNavigate }: { onNavigate?: () => void }) {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-11 z-50 flex max-h-80 w-72 flex-col gap-1.5 overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#0B0F0C] p-2.5 shadow-2xl">
+          <div className="absolute right-0 top-11 z-50 flex max-h-80 w-72 flex-col gap-1.5 overflow-y-auto rounded-2xl border border-[var(--border)] bg-[#0B0F0C] p-2.5 shadow-2xl">
             {items.length === 0 && (
-              <div className="p-4 text-center text-[11.5px] text-[rgba(237,244,239,0.4)]">Xabarlar yo&apos;q</div>
+              <div className="p-4 text-center text-[11.5px] text-[var(--fg-muted)]">Xabarlar yo&apos;q</div>
             )}
             {items.map((n) => {
               const payload = n.payload as Partial<TeamCreatedPayload>;
@@ -80,7 +80,7 @@ export function NotificationsBell({ onNavigate }: { onNavigate?: () => void }) {
                   style={{ background: n.read ? "transparent" : "rgba(47,216,113,.08)" }}
                 >
                   <span className="text-[12px] font-bold">Yangi jamoa: {payload.team_name ?? "—"}</span>
-                  <span className="text-[10.5px] text-[rgba(237,244,239,0.45)]">
+                  <span className="text-[10.5px] text-[var(--fg-muted)]">
                     Murabbiy: {payload.coach_name ?? "—"}
                   </span>
                 </button>

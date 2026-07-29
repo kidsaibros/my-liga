@@ -113,7 +113,7 @@ export function SponsorsPanel({ initialSponsors }: { initialSponsors: Sponsor[] 
         {items.map((s) => (
           <div
             key={s.id}
-            className="flex items-center gap-3 rounded-[16px] border border-white/[0.07] bg-white/[0.04] px-4 py-3"
+            className="flex items-center gap-3 rounded-[16px] border border-[var(--border)] bg-[var(--card)] px-4 py-3"
           >
             <div
               className="flex h-9 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-[10px] text-[10px] font-extrabold text-white"
@@ -128,13 +128,13 @@ export function SponsorsPanel({ initialSponsors }: { initialSponsors: Sponsor[] 
             </div>
             <div className="min-w-0 flex-1">
               <div className="truncate text-[13px] font-bold">{s.name}</div>
-              <div className="mt-0.5 truncate text-[10.5px] text-[rgba(237,244,239,0.45)]">
+              <div className="mt-0.5 truncate text-[10.5px] text-[var(--fg-muted)]">
                 {s.is_featured ? "Faol banner" : `Tartib: ${s.sort_order}`}
               </div>
             </div>
             <button
               onClick={() => openEdit(s)}
-              className="rounded-lg border border-white/[0.1] bg-white/[0.05] px-3 py-1.5 text-[11px] font-semibold"
+              className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-[11px] font-semibold"
             >
               Tahrirlash
             </button>
@@ -147,7 +147,7 @@ export function SponsorsPanel({ initialSponsors }: { initialSponsors: Sponsor[] 
           </div>
         ))}
         {items.length === 0 && (
-          <div className="rounded-[16px] border border-white/[0.07] bg-white/[0.03] p-6 text-center text-sm text-[rgba(237,244,239,0.45)]">
+          <div className="rounded-[16px] border border-[var(--border)] bg-[var(--card)] p-6 text-center text-sm text-[var(--fg-muted)]">
             Hozircha homiylar yo&apos;q — Bosh sahifadagi banner statik ko&apos;rinishda qoladi
           </div>
         )}
@@ -157,7 +157,7 @@ export function SponsorsPanel({ initialSponsors }: { initialSponsors: Sponsor[] 
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center">
           <form
             onSubmit={handleSubmit}
-            className="flex max-h-[85vh] w-full max-w-md flex-col gap-3 overflow-y-auto rounded-t-[24px] border border-white/[0.08] bg-[#0B0F0C] p-5 sm:rounded-[24px]"
+            className="flex max-h-[85vh] w-full max-w-md flex-col gap-3 overflow-y-auto rounded-t-[24px] border border-[var(--border)] bg-[#0B0F0C] p-5 sm:rounded-[24px]"
           >
             <div className="text-[15px] font-bold">{editingId === "new" ? "Yangi homiy" : "Homiyni tahrirlash"}</div>
 
@@ -197,11 +197,11 @@ export function SponsorsPanel({ initialSponsors }: { initialSponsors: Sponsor[] 
                 />
               </Field>
               <label className="flex flex-col gap-1.5">
-                <span className="text-[10.5px] font-semibold text-[rgba(237,244,239,0.5)]">Ko&apos;rinishi</span>
+                <span className="text-[10.5px] font-semibold text-[var(--fg-muted)]">Ko&apos;rinishi</span>
                 <button
                   type="button"
                   onClick={() => setForm({ ...form, is_featured: !form.is_featured })}
-                  className="flex items-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.05] px-3.5 py-2.5 text-[13px]"
+                  className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3.5 py-2.5 text-[13px]"
                 >
                   <span
                     className="h-4 w-4 rounded-[4px] border border-white/20"
@@ -218,7 +218,7 @@ export function SponsorsPanel({ initialSponsors }: { initialSponsors: Sponsor[] 
               <button
                 type="button"
                 onClick={closeForm}
-                className="flex-1 rounded-xl border border-white/[0.1] bg-white/[0.05] py-2.5 text-[13px] font-semibold"
+                className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 text-[13px] font-semibold"
               >
                 Bekor qilish
               </button>
@@ -241,12 +241,12 @@ export function SponsorsPanel({ initialSponsors }: { initialSponsors: Sponsor[] 
 }
 
 const inputCls =
-  "w-full rounded-xl border border-white/[0.1] bg-white/[0.05] px-3.5 py-2.5 text-[13px] text-[#EDF4EF] outline-none focus:border-[rgba(47,216,113,0.5)]";
+  "w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-3.5 py-2.5 text-[13px] text-[var(--fg)] outline-none focus:border-[rgba(47,216,113,0.5)]";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[10.5px] font-semibold text-[rgba(237,244,239,0.5)]">{label}</span>
+      <span className="text-[10.5px] font-semibold text-[var(--fg-muted)]">{label}</span>
       {children}
     </label>
   );

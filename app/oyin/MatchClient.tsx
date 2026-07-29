@@ -130,19 +130,19 @@ export function MatchClient({
       <div className="flex items-center justify-between px-5 pt-1">
         <button
           onClick={() => router.back()}
-          className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.05] text-[#EDF4EF]"
+          className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-[var(--fg)]"
         >
           <BackIcon size={16} />
         </button>
         <div className="text-center">
           <div className="text-[13px] font-bold">{match.tournament?.name}</div>
-          <div className="mt-px text-[10px] text-[rgba(237,244,239,0.5)]">Guruh {match.group_name}</div>
+          <div className="mt-px text-[10px] text-[var(--fg-muted)]">Guruh {match.group_name}</div>
         </div>
         <button
           type="button"
           onClick={handleShare}
           aria-label="Ulashish"
-          className="relative flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.05] text-[#EDF4EF]"
+          className="relative flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-[var(--fg)]"
         >
           <ShareIcon size={15} />
           {shared && (
@@ -158,7 +158,7 @@ export function MatchClient({
 
       {/* Hisob tablosi */}
       <div
-        className="mx-5 mt-4 rounded-[22px] border border-white/[0.08] bg-white/[0.04] p-5 backdrop-blur"
+        className="mx-5 mt-4 rounded-[22px] border border-[var(--border)] bg-[var(--card)] p-5 backdrop-blur"
         style={{ boxShadow: "0 12px 32px rgba(0,0,0,0.4)" }}
       >
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
@@ -178,7 +178,7 @@ export function MatchClient({
           <div className="flex flex-col items-center gap-2">
             <div className="text-[34px] font-extrabold leading-none tracking-tighter">
               {match.home_score}
-              <span className="mx-1.5 text-[rgba(237,244,239,0.35)]">:</span>
+              <span className="mx-1.5 text-[var(--fg-muted)]">:</span>
               {match.away_score}
             </div>
             {match.status === "live" ? (
@@ -209,7 +209,7 @@ export function MatchClient({
                 Tugadi
               </span>
             ) : (
-              <span className="rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-[10.5px] font-extrabold text-[rgba(237,244,239,0.6)]">
+              <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3.5 py-1.5 text-[10.5px] font-extrabold text-[var(--fg-soft)]">
                 Hali boshlanmagan
               </span>
             )}
@@ -229,7 +229,7 @@ export function MatchClient({
           </div>
         </div>
 
-        <div className="mt-4 flex justify-center gap-[18px] border-t border-white/[0.06] pt-3.5 text-[10.5px] text-[rgba(237,244,239,0.55)]">
+        <div className="mt-4 flex justify-center gap-[18px] border-t border-[var(--border)] pt-3.5 text-[10.5px] text-[var(--fg-soft)]">
           <div className="flex items-center gap-1.5">
             <CalendarIcon size={12} />
             {formatMatchDateTime(match.kickoff_at)}
@@ -242,7 +242,7 @@ export function MatchClient({
       </div>
 
       {/* Tablar */}
-      <div className="mt-4 flex gap-1 border-b border-white/[0.06] px-5">
+      <div className="mt-4 flex gap-1 border-b border-[var(--border)] px-5">
         {tabs.map((t) => {
           const on = t === tab;
           return (
@@ -252,7 +252,7 @@ export function MatchClient({
               className="cursor-pointer px-3.5 py-2.5 text-xs transition-colors"
               style={{
                 fontWeight: on ? 700 : 600,
-                color: on ? "#2FD871" : "rgba(237,244,239,0.45)",
+                color: on ? "#2FD871" : "var(--fg-muted)",
                 borderBottom: `2px solid ${on ? "#2FD871" : "transparent"}`,
               }}
             >
@@ -271,18 +271,18 @@ export function MatchClient({
                 <Crest gradient={msg.avatar_gradient} init={msg.author_init} size={34} fontSize={11} border="transparent" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xs font-bold" style={{ color: msg.is_bot ? "#3BE07C" : "#EDF4EF" }}>
+                    <span className="text-xs font-bold" style={{ color: msg.is_bot ? "#3BE07C" : "var(--fg)" }}>
                       {msg.author_name}
                     </span>
-                    <span className="text-[9.5px] text-[rgba(237,244,239,0.35)]">
+                    <span className="text-[9.5px] text-[var(--fg-muted)]">
                       {new Date(msg.created_at).toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
                   <div
-                    className="mt-1 inline-block px-3 py-2 text-xs text-[rgba(237,244,239,0.85)]"
+                    className="mt-1 inline-block px-3 py-2 text-xs text-[var(--fg)]"
                     style={{
-                      background: msg.is_bot ? "rgba(47,216,113,0.08)" : "rgba(255,255,255,0.05)",
-                      border: `1px solid ${msg.is_bot ? "rgba(47,216,113,0.3)" : "rgba(255,255,255,0.08)"}`,
+                      background: msg.is_bot ? "rgba(47,216,113,0.08)" : "var(--card)",
+                      border: `1px solid ${msg.is_bot ? "rgba(47,216,113,0.3)" : "var(--border)"}`,
                       borderRadius: "4px 14px 14px 14px",
                     }}
                   >
@@ -294,7 +294,7 @@ export function MatchClient({
           </div>
 
           {/* Xabar yozish — faqat kirgan foydalanuvchi uchun (RLS ham shuni talab qiladi) */}
-          <div className="border-t border-white/[0.06] bg-[rgba(10,14,11,0.85)] px-5 pb-9 pt-3 backdrop-blur-xl">
+          <div className="border-t border-[var(--border)] bg-[var(--bg-soft)] px-5 pb-9 pt-3 backdrop-blur-xl">
             {sendError && (
               <div className="mb-2 text-center text-[11px] text-[#E8A0A0]" role="alert">
                 {sendError}
@@ -312,7 +312,7 @@ export function MatchClient({
                   maxLength={500}
                   placeholder="Xabar yozing..."
                   aria-label="Chat xabari"
-                  className="flex-1 rounded-full border border-white/10 bg-white/[0.05] px-[18px] py-3 text-[12.5px] text-[#EDF4EF] outline-none transition-colors focus:border-[rgba(47,216,113,0.6)]"
+                  className="flex-1 rounded-full border border-[var(--border)] bg-[var(--card)] px-[18px] py-3 text-[12.5px] text-[var(--fg)] outline-none transition-colors focus:border-[rgba(47,216,113,0.6)]"
                 />
                 <button
                   onClick={sendMessage}
@@ -328,7 +328,7 @@ export function MatchClient({
                 </button>
               </div>
             ) : (
-              <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[12px] text-[rgba(237,244,239,0.5)]">
+              <div className="rounded-full border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-center text-[12px] text-[var(--fg-muted)]">
                 Chatda yozish uchun hisobingizga kiring
               </div>
             )}
@@ -362,7 +362,7 @@ function TeamRoster({
   const bench = squad.filter((p) => !p.is_starter);
 
   return (
-    <div className="rounded-[18px] border border-white/[0.07] bg-white/[0.03] p-4">
+    <div className="rounded-[18px] border border-[var(--border)] bg-[var(--card)] p-4">
       <div className="flex items-center gap-2.5">
         <Crest gradient={team.crest_gradient} init={team.init} size={30} fontSize={9.5} />
         <div className="flex-1 text-[13px] font-bold">{team.name}</div>
@@ -374,14 +374,14 @@ function TeamRoster({
       </div>
 
       {squad.length === 0 ? (
-        <div className="mt-3 border-t border-white/[0.06] pt-3 text-center text-[12px] text-[rgba(237,244,239,0.4)]">
+        <div className="mt-3 border-t border-[var(--border)] pt-3 text-center text-[12px] text-[var(--fg-muted)]">
           Tarkib hali kiritilmagan
         </div>
       ) : (
-        <div className="mt-3 flex flex-col gap-3 border-t border-white/[0.06] pt-3">
+        <div className="mt-3 flex flex-col gap-3 border-t border-[var(--border)] pt-3">
           {starters.length > 0 && (
             <div className="flex flex-col gap-2">
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-[rgba(237,244,239,0.4)]">
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--fg-muted)]">
                 Asosiy tarkib
               </div>
               {positionOrder.map((pos) => {
@@ -389,7 +389,7 @@ function TeamRoster({
                 if (group.length === 0) return null;
                 return (
                   <div key={pos} className="flex flex-col gap-1.5">
-                    <div className="text-[9.5px] text-[rgba(237,244,239,0.35)]">{positionLabel[pos]}</div>
+                    <div className="text-[9.5px] text-[var(--fg-muted)]">{positionLabel[pos]}</div>
                     {group.map((p) => (
                       <PlayerRow
                         key={p.id}
@@ -404,8 +404,8 @@ function TeamRoster({
           )}
 
           {bench.length > 0 && (
-            <div className="flex flex-col gap-1.5 border-t border-white/[0.06] pt-3">
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-[rgba(237,244,239,0.4)]">
+            <div className="flex flex-col gap-1.5 border-t border-[var(--border)] pt-3">
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--fg-muted)]">
                 Zaxira ({bench.length})
               </div>
               {bench.map((p) => (
@@ -422,7 +422,7 @@ function TeamRoster({
 function PlayerRow({ player, isCaptain }: { player: Player; isCaptain: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <span className="flex h-[24px] w-[24px] flex-none items-center justify-center rounded-[8px] bg-white/[0.06] text-[10.5px] font-extrabold text-[rgba(237,244,239,0.7)]">
+      <span className="flex h-[24px] w-[24px] flex-none items-center justify-center rounded-[8px] bg-[var(--card)] text-[10.5px] font-extrabold text-[var(--fg-soft)]">
         {player.number}
       </span>
       <span className="min-w-0 flex-1 truncate text-[12px] font-semibold">{player.name}</span>
@@ -435,7 +435,7 @@ function PlayerRow({ player, isCaptain }: { player: Player; isCaptain: boolean }
           K
         </span>
       )}
-      <span className="flex-none text-[9.5px] text-[rgba(237,244,239,0.35)]">{player.position}</span>
+      <span className="flex-none text-[9.5px] text-[var(--fg-muted)]">{player.position}</span>
     </div>
   );
 }
@@ -463,8 +463,8 @@ function MatchInfo({ match, standings }: { match: Match; standings: Standing[] }
 
   return (
     <div className="app-scroll flex flex-1 flex-col gap-4 px-5 py-4">
-      <div className="rounded-[18px] border border-white/[0.07] bg-white/[0.03] p-4">
-        <div className="text-[10px] font-semibold uppercase tracking-wide text-[rgba(237,244,239,0.4)]">
+      <div className="rounded-[18px] border border-[var(--border)] bg-[var(--card)] p-4">
+        <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--fg-muted)]">
           Uchrashuv ma&apos;lumotlari
         </div>
         <div className="mt-2.5 flex flex-col">
@@ -472,9 +472,9 @@ function MatchInfo({ match, standings }: { match: Match; standings: Standing[] }
             <div
               key={d.label}
               className="flex items-center justify-between gap-3 py-2.5 text-[12px]"
-              style={{ borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.06)" }}
+              style={{ borderTop: i === 0 ? "none" : "1px solid var(--border)" }}
             >
-              <span className="text-[rgba(237,244,239,0.45)]">{d.label}</span>
+              <span className="text-[var(--fg-muted)]">{d.label}</span>
               <span className="min-w-0 truncate text-right font-semibold">{d.value}</span>
             </div>
           ))}
@@ -482,8 +482,8 @@ function MatchInfo({ match, standings }: { match: Match; standings: Standing[] }
       </div>
 
       {(home || away) && (
-        <div className="rounded-[18px] border border-white/[0.07] bg-white/[0.03] p-4">
-          <div className="text-[10px] font-semibold uppercase tracking-wide text-[rgba(237,244,239,0.4)]">
+        <div className="rounded-[18px] border border-[var(--border)] bg-[var(--card)] p-4">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--fg-muted)]">
             Turnir jadvalidagi o&apos;rni
           </div>
           <div className="mt-3 flex flex-col gap-2.5">
@@ -496,13 +496,13 @@ function MatchInfo({ match, standings }: { match: Match; standings: Standing[] }
                 <span className="min-w-0 flex-1 truncate text-[12px] font-semibold">{team.name}</span>
                 {row ? (
                   <>
-                    <span className="text-[10.5px] text-[rgba(237,244,239,0.45)]">
+                    <span className="text-[10.5px] text-[var(--fg-muted)]">
                       {row.pos}-o&apos;rin · {row.played} o&apos;yin
                     </span>
                     <span className="flex-none text-[14px] font-extrabold text-[#3BE07C]">{row.points}</span>
                   </>
                 ) : (
-                  <span className="text-[10.5px] text-[rgba(237,244,239,0.35)]">jadvalda yo&apos;q</span>
+                  <span className="text-[10.5px] text-[var(--fg-muted)]">jadvalda yo&apos;q</span>
                 )}
               </div>
             ))}

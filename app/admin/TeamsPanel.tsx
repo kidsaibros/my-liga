@@ -200,17 +200,17 @@ export function TeamsPanel({
             Tasdiqlash kutilmoqda · {pendingTeams.length}
           </div>
           {pendingTeams.map((t) => (
-            <div key={t.id} className="flex items-center gap-3 rounded-[14px] border border-white/[0.07] bg-white/[0.04] px-3.5 py-2.5">
+            <div key={t.id} className="flex items-center gap-3 rounded-[14px] border border-[var(--border)] bg-[var(--card)] px-3.5 py-2.5">
               <Crest gradient={t.crest_gradient} init={t.init} border={t.crest_border} color={t.crest_color} size={32} fontSize={10} />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[12.5px] font-bold">{t.name}</div>
-                <div className="mt-0.5 truncate text-[10px] text-[rgba(237,244,239,0.45)]">
+                <div className="mt-0.5 truncate text-[10px] text-[var(--fg-muted)]">
                   Murabbiy: {coachName(t.created_by)}
                 </div>
               </div>
               <button
                 onClick={() => setRosterModalTeam(t)}
-                className="rounded-lg border border-white/[0.1] bg-white/[0.05] px-2.5 py-1.5 text-[10.5px] font-semibold"
+                className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[10.5px] font-semibold"
               >
                 Ko&apos;rish
               </button>
@@ -250,13 +250,13 @@ export function TeamsPanel({
         {items.map((t) => (
           <div
             key={t.id}
-            className="flex flex-col gap-2.5 rounded-[16px] border border-white/[0.07] bg-white/[0.04] px-4 py-3"
+            className="flex flex-col gap-2.5 rounded-[16px] border border-[var(--border)] bg-[var(--card)] px-4 py-3"
           >
             <div className="flex items-center gap-3">
               <Crest gradient={t.crest_gradient} init={t.init} border={t.crest_border} color={t.crest_color} size={36} fontSize={11} />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[13px] font-bold">{t.name}</div>
-                <div className="mt-0.5 truncate text-[10.5px] text-[rgba(237,244,239,0.45)]">
+                <div className="mt-0.5 truncate text-[10.5px] text-[var(--fg-muted)]">
                   {t.coach_email ? `Murabbiy: ${t.coach_email}` : "Murabbiy biriktirilmagan"}
                 </div>
               </div>
@@ -273,7 +273,7 @@ export function TeamsPanel({
               )}
               <button
                 onClick={() => openEdit(t)}
-                className="rounded-lg border border-white/[0.1] bg-white/[0.05] px-3 py-1.5 text-[11px] font-semibold"
+                className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-[11px] font-semibold"
               >
                 Tahrirlash
               </button>
@@ -290,7 +290,7 @@ export function TeamsPanel({
                 <select
                   value={assignTournamentId[t.id] ?? ""}
                   onChange={(e) => setAssignTournamentId((prev) => ({ ...prev, [t.id]: e.target.value }))}
-                  className="flex-1 rounded-lg border border-white/[0.1] bg-white/[0.05] px-2.5 py-1.5 text-[11.5px] text-[#EDF4EF] outline-none"
+                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[11.5px] text-[var(--fg)] outline-none"
                 >
                   <option value="">Turnir tanlang...</option>
                   {tournaments.map((tr) => (
@@ -312,7 +312,7 @@ export function TeamsPanel({
           </div>
         ))}
         {items.length === 0 && (
-          <div className="rounded-[16px] border border-white/[0.07] bg-white/[0.03] p-6 text-center text-sm text-[rgba(237,244,239,0.45)]">
+          <div className="rounded-[16px] border border-[var(--border)] bg-[var(--card)] p-6 text-center text-sm text-[var(--fg-muted)]">
             Hozircha jamoalar yo'q
           </div>
         )}
@@ -322,7 +322,7 @@ export function TeamsPanel({
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center">
           <form
             onSubmit={handleSubmit}
-            className="flex max-h-[85vh] w-full max-w-md flex-col gap-3 overflow-y-auto rounded-t-[24px] border border-white/[0.08] bg-[#0B0F0C] p-5 sm:rounded-[24px]"
+            className="flex max-h-[85vh] w-full max-w-md flex-col gap-3 overflow-y-auto rounded-t-[24px] border border-[var(--border)] bg-[#0B0F0C] p-5 sm:rounded-[24px]"
           >
             <div className="text-[15px] font-bold">{editingId === "new" ? "Yangi jamoa" : "Jamoani tahrirlash"}</div>
 
@@ -356,7 +356,7 @@ export function TeamsPanel({
                 className={inputCls}
               />
               {form.tournament_id && form.name.trim() && (
-                <div className="mt-1 text-[11px]" style={{ color: nameConflict ? "#E8A0A0" : "rgba(237,244,239,0.4)" }}>
+                <div className="mt-1 text-[11px]" style={{ color: nameConflict ? "#E8A0A0" : "var(--fg-muted)" }}>
                   {checkingName
                     ? "Tekshirilmoqda..."
                     : nameConflict
@@ -429,7 +429,7 @@ export function TeamsPanel({
               <button
                 type="button"
                 onClick={closeForm}
-                className="flex-1 rounded-xl border border-white/[0.1] bg-white/[0.05] py-2.5 text-[13px] font-semibold"
+                className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 text-[13px] font-semibold"
               >
                 Bekor qilish
               </button>
@@ -478,29 +478,29 @@ function RosterViewModal({ team, onClose }: { team: Team; onClose: () => void })
     <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={onClose}>
       <div
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[75vh] w-full max-w-md flex-col gap-3 overflow-y-auto rounded-t-[24px] border border-white/[0.08] bg-[#0B0F0C] p-5 sm:rounded-[24px]"
+        className="flex max-h-[75vh] w-full max-w-md flex-col gap-3 overflow-y-auto rounded-t-[24px] border border-[var(--border)] bg-[#0B0F0C] p-5 sm:rounded-[24px]"
       >
         <div className="text-[15px] font-bold">{team.name} — tarkib</div>
         {players === null ? (
-          <div className="py-6 text-center text-[12px] text-[rgba(237,244,239,0.45)]">Yuklanmoqda...</div>
+          <div className="py-6 text-center text-[12px] text-[var(--fg-muted)]">Yuklanmoqda...</div>
         ) : players.length === 0 ? (
-          <div className="py-6 text-center text-[12px] text-[rgba(237,244,239,0.45)]">Hali o&apos;yinchi qo&apos;shilmagan</div>
+          <div className="py-6 text-center text-[12px] text-[var(--fg-muted)]">Hali o&apos;yinchi qo&apos;shilmagan</div>
         ) : (
           <div className="flex flex-col gap-2">
             {players.map((p) => (
-              <div key={p.id} className="flex items-center gap-3 rounded-[12px] border border-white/[0.07] bg-white/[0.04] px-3 py-2">
-                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-white/[0.06] text-[11px] font-extrabold">
+              <div key={p.id} className="flex items-center gap-3 rounded-[12px] border border-[var(--border)] bg-[var(--card)] px-3 py-2">
+                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-[var(--card)] text-[11px] font-extrabold">
                   {p.number}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-[12.5px] font-semibold">{p.name}</span>
-                <span className="text-[10.5px] text-[rgba(237,244,239,0.45)]">{p.position}</span>
+                <span className="text-[10.5px] text-[var(--fg-muted)]">{p.position}</span>
               </div>
             ))}
           </div>
         )}
         <button
           onClick={onClose}
-          className="rounded-xl border border-white/[0.1] bg-white/[0.05] py-2.5 text-[13px] font-semibold"
+          className="rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 text-[13px] font-semibold"
         >
           Yopish
         </button>
@@ -510,12 +510,12 @@ function RosterViewModal({ team, onClose }: { team: Team; onClose: () => void })
 }
 
 const inputCls =
-  "w-full rounded-xl border border-white/[0.1] bg-white/[0.05] px-3.5 py-2.5 text-[13px] text-[#EDF4EF] outline-none focus:border-[rgba(47,216,113,0.5)]";
+  "w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-3.5 py-2.5 text-[13px] text-[var(--fg)] outline-none focus:border-[rgba(47,216,113,0.5)]";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[10.5px] font-semibold text-[rgba(237,244,239,0.5)]">{label}</span>
+      <span className="text-[10.5px] font-semibold text-[var(--fg-muted)]">{label}</span>
       {children}
     </label>
   );

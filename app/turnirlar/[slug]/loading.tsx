@@ -19,15 +19,15 @@ export default function Loading() {
         </div>
       </div>
 
-      <div className="flex gap-4 border-b border-white/[0.06] px-3.5 py-2.5">
+      <div className="flex gap-4 border-b border-[var(--border)] px-3.5 py-2.5">
         {[52, 46, 50, 58, 56].map((w, i) => (
-          <SkeletonBox key={i} height={11} width={w} radius={5} style={{ background: "rgba(255,255,255,0.06)" }} />
+          <SkeletonBox key={i} height={11} width={w} radius={5} />
         ))}
       </div>
 
       <div className="flex flex-col gap-1.5 px-5 pt-[18px]">
         {Array.from({ length: 6 }, (_, i) => (
-          <SkeletonBox key={i} height={44} radius={14} style={{ background: "rgba(255,255,255,0.04)" }} />
+          <SkeletonBox key={i} height={44} radius={14} />
         ))}
       </div>
     </div>

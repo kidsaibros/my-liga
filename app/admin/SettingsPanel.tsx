@@ -58,7 +58,7 @@ export function SettingsPanel({ initialSettings }: { initialSettings: AppSetting
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <div className="text-[13px] font-bold">Tizim sozlamalari</div>
       {settings?.updated_at && (
-        <div className="text-[10.5px] text-[rgba(237,244,239,0.4)]">
+        <div className="text-[10.5px] text-[var(--fg-muted)]">
           Oxirgi yangilanish: {new Date(settings.updated_at).toLocaleString("uz-UZ")}
         </div>
       )}
@@ -115,12 +115,12 @@ export function SettingsPanel({ initialSettings }: { initialSettings: AppSetting
 }
 
 const inputCls =
-  "w-full rounded-xl border border-white/[0.1] bg-white/[0.05] px-3.5 py-2.5 text-[13px] text-[#EDF4EF] outline-none focus:border-[rgba(47,216,113,0.5)]";
+  "w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-3.5 py-2.5 text-[13px] text-[var(--fg)] outline-none focus:border-[rgba(47,216,113,0.5)]";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[10.5px] font-semibold text-[rgba(237,244,239,0.5)]">{label}</span>
+      <span className="text-[10.5px] font-semibold text-[var(--fg-muted)]">{label}</span>
       {children}
     </label>
   );

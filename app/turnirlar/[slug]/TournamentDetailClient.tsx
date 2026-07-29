@@ -13,13 +13,13 @@ type TabId = (typeof tabs)[number];
 
 const cols = "24px 1fr 26px 26px 26px 26px 40px 32px";
 
-const muted = "rgba(237,244,239,0.45)";
-const soft = "rgba(237,244,239,0.7)";
+const muted = "var(--fg-muted)";
+const soft = "var(--fg-soft)";
 
 /** Bo'sh holat uchun bir xil ko'rinishdagi karta. */
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-[18px] border border-white/[0.07] bg-white/[0.03] p-6 text-center text-sm" style={{ color: muted }}>
+    <div className="rounded-[18px] border border-[var(--border)] bg-[var(--card)] p-6 text-center text-sm" style={{ color: muted }}>
       {children}
     </div>
   );
@@ -32,8 +32,8 @@ function FixtureCard({ match }: { match: Match }) {
     <div
       className="rounded-[18px] border p-3.5 transition-all hover:border-[rgba(47,216,113,0.45)]"
       style={{
-        borderColor: isLive ? "rgba(47,216,113,0.35)" : "rgba(255,255,255,0.07)",
-        background: isLive ? "rgba(47,216,113,0.06)" : "rgba(255,255,255,0.03)",
+        borderColor: isLive ? "rgba(47,216,113,0.35)" : "var(--border)",
+        background: isLive ? "rgba(47,216,113,0.06)" : "var(--bg-soft)",
       }}
     >
       <div className="flex items-center justify-between text-[10.5px]" style={{ color: muted }}>
@@ -76,7 +76,7 @@ function FixtureCard({ match }: { match: Match }) {
       </div>
 
       {match.venue && (
-        <div className="mt-3 flex items-center gap-1.5 border-t border-white/[0.06] pt-2.5 text-[10.5px]" style={{ color: muted }}>
+        <div className="mt-3 flex items-center gap-1.5 border-t border-[var(--border)] pt-2.5 text-[10.5px]" style={{ color: muted }}>
           <PinIcon size={12} />
           {match.venue}
         </div>
@@ -91,7 +91,7 @@ function ResultRow({ match }: { match: Match }) {
   const awayWon = match.away_score > match.home_score;
 
   return (
-    <div className="rounded-[16px] border border-white/[0.07] bg-white/[0.03] px-3.5 py-3 transition-all hover:border-[rgba(47,216,113,0.35)]">
+    <div className="rounded-[16px] border border-[var(--border)] bg-[var(--card)] px-3.5 py-3 transition-all hover:border-[rgba(47,216,113,0.35)]">
       <div className="mb-2.5 text-[10px]" style={{ color: muted }}>
         {formatMatchDateTime(match.kickoff_at)}
         {match.group_name ? ` · Guruh ${match.group_name}` : ""}
@@ -100,19 +100,19 @@ function ResultRow({ match }: { match: Match }) {
       <div className="flex items-center gap-2.5">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <Crest gradient={match.home_team.crest_gradient} init={match.home_team.init} size={26} fontSize={8.5} />
-          <span className="truncate text-[12px]" style={{ fontWeight: homeWon ? 800 : 500, color: homeWon ? "#EDF4EF" : soft }}>
+          <span className="truncate text-[12px]" style={{ fontWeight: homeWon ? 800 : 500, color: homeWon ? "var(--fg)" : soft }}>
             {match.home_team.name}
           </span>
         </div>
 
-        <div className="flex flex-none items-center gap-1.5 rounded-[10px] bg-white/[0.06] px-2.5 py-1 text-[13px] font-extrabold">
+        <div className="flex flex-none items-center gap-1.5 rounded-[10px] bg-[var(--card)] px-2.5 py-1 text-[13px] font-extrabold">
           <span style={{ color: homeWon ? "#3BE07C" : soft }}>{match.home_score}</span>
           <span style={{ color: muted }}>:</span>
           <span style={{ color: awayWon ? "#3BE07C" : soft }}>{match.away_score}</span>
         </div>
 
         <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-          <span className="truncate text-right text-[12px]" style={{ fontWeight: awayWon ? 800 : 500, color: awayWon ? "#EDF4EF" : soft }}>
+          <span className="truncate text-right text-[12px]" style={{ fontWeight: awayWon ? 800 : 500, color: awayWon ? "var(--fg)" : soft }}>
             {match.away_team.name}
           </span>
           <Crest gradient={match.away_team.crest_gradient} init={match.away_team.init} size={26} fontSize={8.5} />
@@ -127,7 +127,7 @@ const rankStyles = [
   { bg: "rgba(200,205,215,0.12)", color: "#C8CDD7", border: "rgba(200,205,215,0.3)" },
   { bg: "rgba(205,130,80,0.14)", color: "#CD8250", border: "rgba(205,130,80,0.35)" },
 ];
-const rankDefault = { bg: "rgba(255,255,255,0.05)", color: soft, border: "rgba(255,255,255,0.1)" };
+const rankDefault = { bg: "var(--card)", color: soft, border: "var(--border)" };
 
 export function TournamentDetailClient({
   tournament,
@@ -252,7 +252,7 @@ export function TournamentDetailClient({
         </div>
 
         {/* Tablar */}
-        <div className="no-scrollbar flex gap-0.5 overflow-x-auto border-b border-white/[0.06] px-3.5">
+        <div className="no-scrollbar flex gap-0.5 overflow-x-auto border-b border-[var(--border)] px-3.5">
           {tabs.map((t) => {
             const on = t === tab;
             return (
@@ -288,7 +288,7 @@ export function TournamentDetailClient({
               <>
                 <div
                   className="grid gap-0.5 px-3 pb-2 text-center text-[9.5px] font-semibold"
-                  style={{ gridTemplateColumns: cols, color: "rgba(237,244,239,0.4)" }}
+                  style={{ gridTemplateColumns: cols, color: "var(--fg-muted)" }}
                 >
                   <div>#</div>
                   <div className="text-left">Jamoa</div>
@@ -309,11 +309,11 @@ export function TournamentDetailClient({
                         className="grid items-center gap-0.5 rounded-[14px] px-3 py-2.5 text-center text-[11.5px] transition-all hover:translate-x-[3px] hover:!border-[rgba(47,216,113,0.5)]"
                         style={{
                           gridTemplateColumns: cols,
-                          background: hot ? "rgba(47,216,113,0.07)" : "rgba(255,255,255,0.03)",
-                          border: `1px solid ${hot ? "rgba(47,216,113,0.3)" : "rgba(255,255,255,0.06)"}`,
+                          background: hot ? "rgba(47,216,113,0.07)" : "var(--bg-soft)",
+                          border: `1px solid ${hot ? "rgba(47,216,113,0.3)" : "var(--border)"}`,
                         }}
                       >
-                        <div className="font-bold" style={{ color: hot ? "#3BE07C" : "rgba(237,244,239,0.6)" }}>
+                        <div className="font-bold" style={{ color: hot ? "#3BE07C" : "var(--fg-soft)" }}>
                           {row.pos}
                         </div>
                         <div className="flex min-w-0 items-center gap-2 text-left">
@@ -324,7 +324,7 @@ export function TournamentDetailClient({
                         <div style={{ color: soft }}>{row.won}</div>
                         <div style={{ color: soft }}>{row.drawn}</div>
                         <div style={{ color: soft }}>{row.lost}</div>
-                        <div className="text-[10.5px]" style={{ color: "rgba(237,244,239,0.55)" }}>
+                        <div className="text-[10.5px]" style={{ color: "var(--fg-soft)" }}>
                           {row.goals_for}/{row.goals_against}
                         </div>
                         <div className="font-extrabold text-[#3BE07C]">{row.points}</div>
@@ -359,7 +359,7 @@ export function TournamentDetailClient({
 
             <div className={`mb-1 flex items-center justify-between ${live.length > 0 ? "mt-3" : ""}`}>
               <div className="text-[15px] font-bold">Kelgusi o&apos;yinlar</div>
-              <div className="rounded-full border border-white/[0.1] bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold" style={{ color: soft }}>
+              <div className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-[10px] font-semibold" style={{ color: soft }}>
                 {scheduled.length} ta
               </div>
             </div>
@@ -377,7 +377,7 @@ export function TournamentDetailClient({
           <div className="flex flex-col gap-2 px-5 pb-6 pt-[18px]">
             <div className="mb-1 flex items-center justify-between">
               <div className="text-[15px] font-bold">Yakunlangan o&apos;yinlar</div>
-              <div className="rounded-full border border-white/[0.1] bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold" style={{ color: soft }}>
+              <div className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-[10px] font-semibold" style={{ color: soft }}>
                 {results.length} ta
               </div>
             </div>
@@ -403,7 +403,7 @@ export function TournamentDetailClient({
                 return (
                   <div
                     key={`${p.player_name}-${p.team_id}`}
-                    className="flex items-center gap-3 rounded-[18px] border border-white/[0.07] bg-white/[0.04] px-4 py-3 transition-all hover:translate-x-1 hover:border-[rgba(47,216,113,0.45)]"
+                    className="flex items-center gap-3 rounded-[18px] border border-[var(--border)] bg-[var(--card)] px-4 py-3 transition-all hover:translate-x-1 hover:border-[rgba(47,216,113,0.45)]"
                   >
                     <div
                       className="flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-[9px] text-xs font-extrabold"
@@ -446,7 +446,7 @@ export function TournamentDetailClient({
                 {regulationItems.map((item, i) => (
                   <li
                     key={i}
-                    className="flex gap-3 rounded-[14px] border border-white/[0.07] bg-white/[0.03] px-3.5 py-3 text-[12px] leading-relaxed"
+                    className="flex gap-3 rounded-[14px] border border-[var(--border)] bg-[var(--card)] px-3.5 py-3 text-[12px] leading-relaxed"
                     style={{ color: soft }}
                   >
                     <span className="flex h-[22px] w-[22px] flex-none items-center justify-center rounded-[8px] bg-[rgba(47,216,113,0.12)] text-[10px] font-extrabold text-[#3BE07C]">

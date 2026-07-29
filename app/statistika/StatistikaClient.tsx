@@ -19,7 +19,7 @@ const rankStyles = [
   { bg: "rgba(200,205,215,0.12)", color: "#C8CDD7", border: "rgba(200,205,215,0.3)" },
   { bg: "rgba(205,130,80,0.14)", color: "#CD8250", border: "rgba(205,130,80,0.35)" },
 ];
-const rankDefault = { bg: "rgba(255,255,255,0.05)", color: "rgba(237,244,239,0.6)", border: "rgba(255,255,255,0.1)" };
+const rankDefault = { bg: "var(--card)", color: "var(--fg-soft)", border: "var(--border)" };
 
 export function StatistikaClient({ players }: { players: Scorer[] }) {
   const [tab, setTab] = useState<StatTabId>("top");
@@ -46,8 +46,8 @@ export function StatistikaClient({ players }: { players: Scorer[] }) {
         <div className="flex flex-col gap-2.5">
           {rows.length === 0 && (
             <div
-              className="rounded-[18px] border border-white/[0.07] bg-white/[0.03] p-6 text-center text-[13px]"
-              style={{ color: "rgba(237,244,239,0.45)" }}
+              className="rounded-[18px] border border-[var(--border)] bg-[var(--card)] p-6 text-center text-[13px]"
+              style={{ color: "var(--fg-muted)" }}
             >
               Hozircha ma&apos;lumot yo&apos;q — statistika o&apos;yin natijalari kiritilgach
               to&apos;ldiriladi
@@ -59,7 +59,7 @@ export function StatistikaClient({ players }: { players: Scorer[] }) {
             return (
               <div
                 key={`${p.player_name}-${p.team_id}`}
-                className="flex items-center gap-3 rounded-[18px] border border-white/[0.07] bg-white/[0.04] px-4 py-3 backdrop-blur transition-all hover:translate-x-1 hover:border-[rgba(47,216,113,0.45)]"
+                className="flex items-center gap-3 rounded-[18px] border border-[var(--border)] bg-[var(--card)] px-4 py-3 backdrop-blur transition-all hover:translate-x-1 hover:border-[rgba(47,216,113,0.45)]"
               >
                 <div
                   className="flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-[9px] text-xs font-extrabold"
@@ -70,7 +70,7 @@ export function StatistikaClient({ players }: { players: Scorer[] }) {
                 <Crest gradient={p.team.crest_gradient} init={p.team.init} size={40} fontSize={12} />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[13px] font-bold">{p.player_name}</div>
-                  <div className="mt-0.5 text-[10.5px] text-[rgba(237,244,239,0.45)]">{p.team.name}</div>
+                  <div className="mt-0.5 text-[10.5px] text-[var(--fg-muted)]">{p.team.name}</div>
                 </div>
                 <div
                   className="text-xl font-extrabold text-[#3BE07C]"

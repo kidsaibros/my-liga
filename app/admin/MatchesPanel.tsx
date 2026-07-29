@@ -178,7 +178,7 @@ export function MatchesPanel({
 
   if (tournaments.length === 0) {
     return (
-      <div className="rounded-[18px] border border-white/[0.07] bg-white/[0.03] p-6 text-center text-[13px] text-[rgba(237,244,239,0.5)]">
+      <div className="rounded-[18px] border border-[var(--border)] bg-[var(--card)] p-6 text-center text-[13px] text-[var(--fg-muted)]">
         Avval «Turnirlar» bo'limidan turnir qo'shing
       </div>
     );
@@ -210,14 +210,14 @@ export function MatchesPanel({
       </div>
 
       {visible.length === 0 ? (
-        <div className="rounded-[18px] border border-white/[0.07] bg-white/[0.03] p-6 text-center text-[13px] text-[rgba(237,244,239,0.45)]">
+        <div className="rounded-[18px] border border-[var(--border)] bg-[var(--card)] p-6 text-center text-[13px] text-[var(--fg-muted)]">
           Bu turnirda hali uchrashuv yo&apos;q
         </div>
       ) : (
         <div className="flex flex-col gap-2">
           {visible.map((m) => (
-            <div key={m.id} className="rounded-[16px] border border-white/[0.07] bg-white/[0.03] p-3.5">
-              <div className="flex items-center justify-between text-[10px] text-[rgba(237,244,239,0.45)]">
+            <div key={m.id} className="rounded-[16px] border border-[var(--border)] bg-[var(--card)] p-3.5">
+              <div className="flex items-center justify-between text-[10px] text-[var(--fg-muted)]">
                 <span>{formatMatchDateTime(m.kickoff_at)}</span>
                 <span className="flex items-center gap-1.5">
                   {m.is_featured && <span className="font-bold text-[#E9C464]">★ Asosiy</span>}
@@ -225,7 +225,7 @@ export function MatchesPanel({
                     className="rounded-full px-2 py-0.5 font-semibold"
                     style={{
                       background: m.status === "live" ? "rgba(47,216,113,0.14)" : "rgba(255,255,255,0.06)",
-                      color: m.status === "live" ? "#3BE07C" : "rgba(237,244,239,0.6)",
+                      color: m.status === "live" ? "#3BE07C" : "var(--fg-soft)",
                     }}
                   >
                     {statusLabel(m.status)}
@@ -239,7 +239,7 @@ export function MatchesPanel({
                   <Crest gradient={m.home_team.crest_gradient} init={m.home_team.init} size={26} fontSize={8.5} />
                   <span className="truncate text-[12.5px] font-semibold">{m.home_team.name}</span>
                 </div>
-                <div className="flex-none rounded-[9px] bg-white/[0.06] px-2.5 py-1 text-[13px] font-extrabold">
+                <div className="flex-none rounded-[9px] bg-[var(--card)] px-2.5 py-1 text-[13px] font-extrabold">
                   {m.status === "scheduled" ? "–" : `${m.home_score} : ${m.away_score}`}
                 </div>
                 <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
@@ -249,7 +249,7 @@ export function MatchesPanel({
               </div>
 
               {scoringId === m.id ? (
-                <div className="mt-3 flex flex-col gap-2 border-t border-white/[0.07] pt-3">
+                <div className="mt-3 flex flex-col gap-2 border-t border-[var(--border)] pt-3">
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
@@ -260,7 +260,7 @@ export function MatchesPanel({
                       className={`${inputCls} text-center`}
                       aria-label="Uy egalari hisobi"
                     />
-                    <span className="flex-none text-[13px] font-bold text-[rgba(237,244,239,0.5)]">:</span>
+                    <span className="flex-none text-[13px] font-bold text-[var(--fg-muted)]">:</span>
                     <input
                       type="number"
                       min={0}
@@ -300,7 +300,7 @@ export function MatchesPanel({
                   <div className="flex gap-2">
                     <button
                       onClick={() => setScoringId(null)}
-                      className="flex-1 rounded-xl border border-white/[0.1] bg-white/[0.05] py-2 text-[12px] font-semibold"
+                      className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--card)] py-2 text-[12px] font-semibold"
                     >
                       Bekor
                     </button>
@@ -322,7 +322,7 @@ export function MatchesPanel({
                   />
                 </div>
               ) : (
-                <div className="mt-3 flex gap-2 border-t border-white/[0.07] pt-3">
+                <div className="mt-3 flex gap-2 border-t border-[var(--border)] pt-3">
                   <button
                     onClick={() => openScore(m)}
                     className="flex-1 rounded-xl border border-[rgba(47,216,113,0.25)] bg-[rgba(47,216,113,0.08)] py-2 text-[12px] font-bold text-[#3BE07C]"
@@ -331,7 +331,7 @@ export function MatchesPanel({
                   </button>
                   <button
                     onClick={() => openEdit(m)}
-                    className="flex-1 rounded-xl border border-white/[0.1] bg-white/[0.05] py-2 text-[12px] font-semibold"
+                    className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--card)] py-2 text-[12px] font-semibold"
                   >
                     Tahrirlash
                   </button>
@@ -353,7 +353,7 @@ export function MatchesPanel({
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-5">
           <form
             onSubmit={handleSubmit}
-            className="flex max-h-[88vh] w-full max-w-[430px] flex-col gap-2.5 overflow-y-auto rounded-t-[22px] border border-white/[0.08] bg-[#0E1512] p-5 sm:rounded-[22px]"
+            className="flex max-h-[88vh] w-full max-w-[430px] flex-col gap-2.5 overflow-y-auto rounded-t-[22px] border border-[var(--border)] bg-[#0E1512] p-5 sm:rounded-[22px]"
           >
             <div className="text-[15px] font-bold">
               {editingId === "new" ? "Yangi uchrashuv" : "Uchrashuvni tahrirlash"}
@@ -450,7 +450,7 @@ export function MatchesPanel({
               />
             </Field>
 
-            <label className="mt-1 flex cursor-pointer items-center gap-2.5 rounded-xl border border-white/[0.1] bg-white/[0.04] px-3.5 py-2.5">
+            <label className="mt-1 flex cursor-pointer items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3.5 py-2.5">
               <input
                 type="checkbox"
                 checked={form.is_featured}
@@ -459,7 +459,7 @@ export function MatchesPanel({
               />
               <span className="text-[12px]">
                 Asosiy uchrashuv
-                <span className="ml-1 text-[10.5px] text-[rgba(237,244,239,0.45)]">
+                <span className="ml-1 text-[10.5px] text-[var(--fg-muted)]">
                   («O&apos;yin» sahifasida ko&apos;rsatiladi — faqat bittasi bo&apos;lishi mumkin)
                 </span>
               </span>
@@ -471,7 +471,7 @@ export function MatchesPanel({
               <button
                 type="button"
                 onClick={() => setEditingId(null)}
-                className="flex-1 rounded-xl border border-white/[0.1] bg-white/[0.05] py-2.5 text-[13px] font-semibold"
+                className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 text-[13px] font-semibold"
               >
                 Bekor qilish
               </button>
@@ -494,12 +494,12 @@ export function MatchesPanel({
 }
 
 const inputCls =
-  "w-full rounded-xl border border-white/[0.1] bg-white/[0.05] px-3.5 py-2.5 text-[13px] text-[#EDF4EF] outline-none focus:border-[rgba(47,216,113,0.5)]";
+  "w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-3.5 py-2.5 text-[13px] text-[var(--fg)] outline-none focus:border-[rgba(47,216,113,0.5)]";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[10.5px] font-semibold text-[rgba(237,244,239,0.5)]">{label}</span>
+      <span className="text-[10.5px] font-semibold text-[var(--fg-muted)]">{label}</span>
       {children}
     </label>
   );

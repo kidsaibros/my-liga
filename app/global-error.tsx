@@ -29,7 +29,7 @@ export default function GlobalError({
           alignItems: "center",
           justifyContent: "center",
           background: "#0A0E0B",
-          color: "#EDF4EF",
+          color: "var(--fg)",
           fontFamily: "system-ui, -apple-system, Segoe UI, sans-serif",
           padding: 24,
         }}
@@ -58,12 +58,12 @@ export default function GlobalError({
           <h1 style={{ fontSize: 19, fontWeight: 800, marginTop: 20, marginBottom: 8 }}>
             Ilovada jiddiy xato
           </h1>
-          <p style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(237,244,239,0.7)", margin: 0 }}>
+          <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--fg-soft)", margin: 0 }}>
             Ilovani yuklab bo&apos;lmadi. Sahifani yangilab ko&apos;ring.
           </p>
 
           {error.digest && (
-            <p style={{ fontSize: 10.5, color: "rgba(237,244,239,0.45)", marginTop: 12 }}>
+            <p style={{ fontSize: 10.5, color: "var(--fg-muted)", marginTop: 12 }}>
               Xato kodi: {error.digest}
             </p>
           )}

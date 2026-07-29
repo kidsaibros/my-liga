@@ -60,7 +60,7 @@ export function AdminClient({
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.push("/")}
-          className="flex h-[38px] w-[38px] items-center justify-center rounded-xl bg-white/[0.08] text-[#EDF4EF] transition hover:bg-white/[0.16]"
+          className="flex h-[38px] w-[38px] items-center justify-center rounded-xl bg-[var(--card)] text-[var(--fg)] transition hover:bg-[var(--bg-soft)]"
         >
           <BackIcon size={16} />
         </button>
