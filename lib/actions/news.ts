@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { CACHE_TAGS } from "@/lib/cache";
+import { sendPushToAll } from "@/lib/push";
 import { idSchema, newsSchema } from "@/lib/validation/schemas";
 import type { News } from "@/lib/types";
 
@@ -26,6 +27,19 @@ export async function createNews(input: unknown): Promise<ActionResult<News>> {
   if (error) return { data: null, error: error.message };
 
   revalidateNews();
+
+  // Barcha obunachilarga push xabar (push sozlanmagan bo'lsa jimgina o'tkaziladi).
+  try {
+    await sendPushToAll({
+      title: "📰 Yangi yangilik",
+      body: (data as News).title,
+      url: "/yangiliklar",
+      tag: "news",
+    });
+  } catch {
+    // Push xatosi yangilik yaratishni buzmasin.
+  }
+
   return { data: data as News, error: null };
 }
 

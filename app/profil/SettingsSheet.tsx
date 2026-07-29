@@ -5,6 +5,7 @@ import { Sheet } from "@/components/ui";
 import { Avatar } from "@/components/Avatar";
 import { CameraIcon } from "@/components/icons";
 import { updateFullName, updateNotificationPrefs, uploadAvatar } from "@/lib/actions/profile";
+import { enablePush, disablePush, pushSupported } from "@/lib/push-client";
 import type { Profile } from "@/lib/types";
 
 export function SettingsSheet({
@@ -28,6 +29,7 @@ export function SettingsSheet({
   const [push, setPush] = useState(profile.push_enabled);
   const [email, setEmail] = useState(profile.email_enabled);
   const [savingPrefs, setSavingPrefs] = useState(false);
+  const [pushMsg, setPushMsg] = useState<string | null>(null);
 
   async function handleNameSave() {
     setSavingName(true);
@@ -60,12 +62,40 @@ export function SettingsSheet({
     if (fileRef.current) fileRef.current.value = "";
   }
 
-  async function handlePrefsToggle(nextPush: boolean, nextEmail: boolean) {
-    setPush(nextPush);
-    setEmail(nextEmail);
-    setSavingPrefs(true);
+  async function persistPrefs(nextPush: boolean, nextEmail: boolean) {
     await updateNotificationPrefs(nextPush, nextEmail);
     onUpdated({ push_enabled: nextPush, email_enabled: nextEmail });
+  }
+
+  // Push tugmasi — shunchaki sozlama emas, haqiqiy qurilma obunasi.
+  async function handlePushToggle(next: boolean) {
+    setPushMsg(null);
+    setSavingPrefs(true);
+    try {
+      if (next) {
+        if (!pushSupported()) {
+          setPushMsg("Bu qurilma push bildirishnomalarni qo'llab-quvvatlamaydi");
+          return;
+        }
+        const res = await enablePush();
+        if (!res.ok) {
+          setPushMsg(res.error);
+          return; // tugma yoqilmaydi
+        }
+      } else {
+        await disablePush();
+      }
+      setPush(next);
+      await persistPrefs(next, email);
+    } finally {
+      setSavingPrefs(false);
+    }
+  }
+
+  async function handleEmailToggle(next: boolean) {
+    setEmail(next);
+    setSavingPrefs(true);
+    await persistPrefs(push, next);
     setSavingPrefs(false);
   }
 
@@ -130,13 +160,14 @@ export function SettingsSheet({
             label="Push bildirishnomalar"
             checked={push}
             disabled={savingPrefs}
-            onChange={(v) => handlePrefsToggle(v, email)}
+            onChange={handlePushToggle}
           />
+          {pushMsg && <div className="text-[11px] text-[#F87171]">{pushMsg}</div>}
           <ToggleRow
             label="Email bildirishnomalar"
             checked={email}
             disabled={savingPrefs}
-            onChange={(v) => handlePrefsToggle(push, v)}
+            onChange={handleEmailToggle}
           />
         </div>
       </div>

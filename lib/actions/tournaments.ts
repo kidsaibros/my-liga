@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { CACHE_TAGS } from "@/lib/cache";
+import { sendPushToAll } from "@/lib/push";
 import { idSchema, tournamentSchema } from "@/lib/validation/schemas";
 import { friendlyDbError } from "@/lib/db-error";
 import type { Tournament } from "@/lib/types";
@@ -30,6 +31,19 @@ export async function createTournament(input: unknown): Promise<ActionResult<Tou
   if (error) return { data: null, error: error.message };
 
   revalidateTournaments();
+
+  // Barcha obunachilarga push xabar (push sozlanmagan bo'lsa jimgina o'tkaziladi).
+  try {
+    await sendPushToAll({
+      title: "🏆 Yangi turnir",
+      body: (data as Tournament).name,
+      url: "/turnirlar",
+      tag: "tournament",
+    });
+  } catch {
+    // Push xatosi turnir yaratishni buzmasin.
+  }
+
   return { data: data as Tournament, error: null };
 }
 
