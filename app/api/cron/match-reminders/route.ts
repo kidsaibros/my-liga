@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendPushToAll } from "@/lib/push";
 
-// web-push Node runtime talab qiladi (Edge emas).
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+// Segment config (runtime/dynamic) ataylab belgilanmagan — ular
+// experimental.useCache bilan mos kelmaydi. Route `request.headers`ni
+// o'qigani uchun avtomat dinamik va standart Node runtime'da ishlaydi.
 
 /**
  * O'yin boshlanishi eslatmasi.
