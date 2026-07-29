@@ -47,7 +47,25 @@ export function MatchClient({
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [draft, setDraft] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
+  const [shared, setShared] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // O'yinni ulashish: telefonda tizim ulashish oynasi, aks holda havolani nusxalash.
+  async function handleShare() {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const title = `${match.home_team.name} — ${match.away_team.name}`;
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title, text: `${title} · MY LIGA`, url });
+      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        setShared(true);
+        setTimeout(() => setShared(false), 1800);
+      }
+    } catch {
+      // Foydalanuvchi bekor qildi.
+    }
+  }
   // Chat faqat kirgan foydalanuvchilar uchun — RLS ham aynan shuni talab qiladi.
   const profile = useSessionProfile();
 
@@ -120,8 +138,21 @@ export function MatchClient({
           <div className="text-[13px] font-bold">{match.tournament?.name}</div>
           <div className="mt-px text-[10px] text-[rgba(237,244,239,0.5)]">Guruh {match.group_name}</div>
         </div>
-        <button className="flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.05] text-[#EDF4EF]">
+        <button
+          type="button"
+          onClick={handleShare}
+          aria-label="Ulashish"
+          className="relative flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.05] text-[#EDF4EF]"
+        >
           <ShareIcon size={15} />
+          {shared && (
+            <span
+              className="absolute right-0 top-[44px] z-10 whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-semibold"
+              style={{ background: "#0E9F6E", color: "#fff" }}
+            >
+              Havola nusxalandi
+            </span>
+          )}
         </button>
       </div>
 

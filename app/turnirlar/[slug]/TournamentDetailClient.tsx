@@ -144,6 +144,24 @@ export function TournamentDetailClient({
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<TabId>("Jadval");
+  const [shared, setShared] = useState(false);
+
+  // Turnirni ulashish: telefonda tizim ulashish oynasi, aks holda havolani nusxalash.
+  async function handleShare() {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const shareData = { title: tournament.name, text: `${tournament.name} — MY LIGA`, url };
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share(shareData);
+      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        setShared(true);
+        setTimeout(() => setShared(false), 1800);
+      }
+    } catch {
+      // Foydalanuvchi ulashishni bekor qildi — hech narsa qilmaymiz.
+    }
+  }
 
   // Hozir ketayotgan o'yin «kelgusi» emas — uni alohida bo'limga ajratamiz.
   const live = useMemo(() => upcoming.filter((m) => m.status === "live"), [upcoming]);
@@ -191,8 +209,21 @@ export function TournamentDetailClient({
             >
               <BackIcon size={16} />
             </button>
-            <button className="flex h-[38px] w-[38px] items-center justify-center rounded-xl bg-white/[0.08] text-[#EDF4EF] transition hover:bg-white/[0.16]">
+            <button
+              type="button"
+              onClick={handleShare}
+              aria-label="Ulashish"
+              className="relative flex h-[38px] w-[38px] items-center justify-center rounded-xl bg-white/[0.08] text-[#EDF4EF] transition hover:bg-white/[0.16]"
+            >
               <ShareIcon size={16} />
+              {shared && (
+                <span
+                  className="absolute right-0 top-[44px] whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-semibold"
+                  style={{ background: "#0E9F6E", color: "#fff" }}
+                >
+                  Havola nusxalandi
+                </span>
+              )}
             </button>
           </div>
           <div className="relative mt-[18px] flex items-end justify-between">
