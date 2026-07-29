@@ -103,6 +103,14 @@ export function ProfilClient({
               Google orqali kirish
             </button>
           </form>
+
+          <p className="max-w-xs text-[11px] leading-relaxed" style={{ color: "var(--fg-muted)" }}>
+            Kirish orqali siz{" "}
+            <Link href="/maxfiylik" style={{ color: "#0E9F6E", fontWeight: 600 }}>
+              Maxfiylik siyosati
+            </Link>
+            ga rozilik bildirasiz
+          </p>
         </div>
       </Screen>
     );
@@ -167,6 +175,9 @@ export function ProfilClient({
           <MenuRow icon={<HelpIcon size={17} />} label="Yordam" onClick={() => setOpenSheet("help")} />
           <MenuRow icon={<StarIcon size={17} />} label="Sevimlilar" onClick={() => setOpenSheet("favorites")} />
           <MenuRow icon={<SettingsIcon size={17} />} label="Sozlamalar" onClick={() => setOpenSheet("settings")} />
+          <Link href="/maxfiylik" className="block">
+            <MenuRow icon={<ShieldIcon size={17} />} label="Maxfiylik siyosati" as="div" />
+          </Link>
 
           {profile.role === "coach" && (
             <Link href="/coach" className="block">
