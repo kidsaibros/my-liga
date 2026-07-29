@@ -77,16 +77,14 @@ export function Splash() {
           <div style={{ color: "#fff" }}>MY</div>
           <div style={{ color: "#fff" }}>LIGA</div>
         </div>
-        <svg
-          viewBox="0 0 1024 1024"
-          width="96"
-          height="96"
-          fill="#fff"
-          xmlns="http://www.w3.org/2000/svg"
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.svg"
+          alt="MY LIGA"
+          width={96}
+          height={96}
           style={{ flex: "none", filter: "drop-shadow(0 10px 26px rgba(4,20,14,.55))" }}
-        >
-          <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-187 0-341.2-137.6-368.5-316.5L341.1 369l170.9 170.9l170.9-170.9l197.6 198.5C853.2 746.4 699 884 512 884zm316.5-430.7L630.9 255.7l115.1-115.1c110.8 63.8 191.1 169.3 220.5 294.1L828.5 453.3zM512 368.3L361.6 217.9c16-2.9 32.5-4.5 49.3-5.3L512 284.1l101.1-71.5c16.8.8 33.3 2.4 49.3 5.3L512 368.3zM277.1 140.6l115.1 115.1l-197.6 197.6c-13.3-30.8-23.7-63.5-31-97.7l113.5-115z" />
-        </svg>
+        />
       </div>
       <div
         style={{
