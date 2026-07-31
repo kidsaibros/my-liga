@@ -5,11 +5,13 @@ import { createNews, updateNews, deleteNews } from "@/lib/actions/news";
 import type { News } from "@/lib/types";
 import { PlusIcon } from "@/components/icons";
 import { Toast } from "@/components/Toast";
+import { ImageUpload } from "@/components/ImageUpload";
 
 type FormState = {
   title: string;
   body: string;
   cover_gradient: string;
+  image_url: string;
   published_at: string;
 };
 
@@ -24,6 +26,7 @@ function emptyForm(): FormState {
     title: "",
     body: "",
     cover_gradient: "linear-gradient(140deg,#2FD871,#128A48)",
+    image_url: "",
     published_at: toLocalInput(new Date().toISOString()),
   };
 }
@@ -47,6 +50,7 @@ export function NewsPanel({ initialNews }: { initialNews: News[] }) {
       title: n.title,
       body: n.body,
       cover_gradient: n.cover_gradient,
+      image_url: n.image_url ?? "",
       published_at: toLocalInput(n.published_at),
     });
     setError(null);
@@ -67,6 +71,7 @@ export function NewsPanel({ initialNews }: { initialNews: News[] }) {
       title: form.title.trim(),
       body: form.body.trim(),
       cover_gradient: form.cover_gradient.trim(),
+      image_url: form.image_url.trim(),
       published_at: new Date(form.published_at).toISOString(),
     };
 
@@ -175,7 +180,14 @@ export function NewsPanel({ initialNews }: { initialNews: News[] }) {
                 className={inputCls}
               />
             </Field>
-            <Field label="Muqova gradienti (CSS)">
+            <ImageUpload
+              label="Rasm (ixtiyoriy — bo'lmasa gradient ishlatiladi)"
+              value={form.image_url || null}
+              onChange={(url) => setForm({ ...form, image_url: url })}
+              category="news"
+              shape="rect"
+            />
+            <Field label="Muqova gradienti (rasm bo'lmaganда zaxira)">
               <input
                 required
                 value={form.cover_gradient}

@@ -29,12 +29,18 @@ export default async function YangiliklarPage() {
           </div>
         ) : (
           news.map((n) => (
-            <div
+            <Link
               key={n.id}
-              className="overflow-hidden rounded-[18px] border"
+              href={`/yangiliklar/${n.id}`}
+              className="block overflow-hidden rounded-[18px] border transition-opacity hover:opacity-90"
               style={{ borderColor: "var(--border)", background: "var(--card)" }}
             >
-              <div className="h-[92px] w-full" style={{ background: n.cover_gradient }} />
+              {n.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={n.image_url} alt={n.title} className="h-[180px] w-full object-cover" />
+              ) : (
+                <div className="h-[180px] w-full" style={{ background: n.cover_gradient }} />
+              )}
               <div className="flex flex-col gap-1.5 p-4">
                 <div className="text-[13px] font-bold">{n.title}</div>
                 <div className="line-clamp-2 text-[12px]" style={{ color: "var(--fg-soft)" }}>
@@ -44,7 +50,7 @@ export default async function YangiliklarPage() {
                   {new Date(n.published_at).toLocaleDateString("uz-UZ", { day: "numeric", month: "long", year: "numeric" })}
                 </div>
               </div>
-            </div>
+            </Link>
           ))
         )}
       </div>

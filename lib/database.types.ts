@@ -288,6 +288,7 @@ export type Database = {
           title: string;
           body: string;
           cover_gradient: string;
+          image_url: string | null;
           published_at: string;
           created_at: string;
         };
@@ -296,6 +297,7 @@ export type Database = {
           title: string;
           body: string;
           cover_gradient?: string;
+          image_url?: string | null;
           published_at?: string;
           created_at?: string;
         };

@@ -143,6 +143,7 @@ export const newsSchema = z.object({
   title: z.string().trim().min(1, "Sarlavha majburiy").max(200),
   body: z.string().trim().min(1, "Matn majburiy").max(20000),
   cover_gradient: cssValueSchema,
+  image_url: optionalUrlSchema,
   published_at: z.coerce.date("Sana noto'g'ri").transform((d) => d.toISOString()),
 });
 export type NewsInput = z.infer<typeof newsSchema>;
