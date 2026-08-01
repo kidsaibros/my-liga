@@ -2,8 +2,30 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { diagnoseAndTest } from "@/lib/push";
 
 export type ActionResult<T> = { data: T; error: null } | { data: null; error: string };
+
+/** Admin uchun test: barcha obunalarga push yuboradi va aniq natijani qaytaradi. */
+export async function testPush(): Promise<ActionResult<{ message: string }>> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { data: null, error: "Avval hisobingizga kiring" };
+
+  const r = await diagnoseAndTest();
+  if (!r.configured) {
+    return { data: null, error: "VAPID kalitlar serverda yo'q — Vercel env qo'shib, Redeploy qiling" };
+  }
+  if (r.subscriptions === 0) {
+    return { data: null, error: "Hech qanday obuna yo'q — telefonda Sozlamalar → Push'ni qayta yoqing" };
+  }
+  if (r.sent > 0 && r.errors.length === 0) {
+    return { data: { message: `✅ ${r.sent} ta qurilmaga yuborildi — telefonni tekshiring` }, error: null };
+  }
+  return { data: null, error: `Yuborishda xato (${r.subscriptions} obuna): ${r.errors.join(" | ")}` };
+}
 
 const subscriptionSchema = z.object({
   endpoint: z.string().url("Noto'g'ri endpoint"),

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createNews, updateNews, deleteNews } from "@/lib/actions/news";
+import { testPush } from "@/lib/actions/push";
 import type { News } from "@/lib/types";
 import { PlusIcon } from "@/components/icons";
 import { Toast } from "@/components/Toast";
@@ -109,18 +110,34 @@ export function NewsPanel({ initialNews }: { initialNews: News[] }) {
     setToast({ msg: "O'chirildi", kind: "success" });
   }
 
+  async function handleTestPush() {
+    setToast({ msg: "Push yuborilmoqda...", kind: "success" });
+    const res = await testPush();
+    if (res.error) setToast({ msg: res.error, kind: "error" });
+    else setToast({ msg: res.data.message, kind: "success" });
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div className="text-[13px] font-bold">{items.length} ta yangilik</div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold text-[#06130B]"
-          style={{ background: "linear-gradient(140deg,#2FD871,#128A48)" }}
-        >
-          <PlusIcon size={14} />
-          Yangi post
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleTestPush}
+            className="rounded-full border px-3 py-2 text-xs font-semibold"
+            style={{ borderColor: "var(--border)", background: "var(--card)", color: "var(--fg)" }}
+          >
+            🔔 Test push
+          </button>
+          <button
+            onClick={openCreate}
+            className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold text-[#06130B]"
+            style={{ background: "linear-gradient(140deg,#2FD871,#128A48)" }}
+          >
+            <PlusIcon size={14} />
+            Yangi post
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-2">

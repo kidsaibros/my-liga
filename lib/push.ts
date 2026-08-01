@@ -69,6 +69,43 @@ export async function sendPushToAll(payload: PushPayload): Promise<void> {
   await sendToRows((data ?? []) as Row[], payload);
 }
 
+/**
+ * Diagnostika: barcha obunalarga test xabar yuboradi va aniq natijани qaytaradi.
+ * "Test push" tugmasi shu orqali muammoni ko'rsatadi (obuna soni, yuborilgan, xatolar).
+ */
+export async function diagnoseAndTest(): Promise<{
+  configured: boolean;
+  subscriptions: number;
+  sent: number;
+  errors: string[];
+}> {
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+  const subject = process.env.VAPID_SUBJECT || "mailto:admin@myliga.app";
+  if (!publicKey || !privateKey) {
+    return { configured: false, subscriptions: 0, sent: 0, errors: [] };
+  }
+  webpush.setVapidDetails(subject, publicKey, privateKey);
+
+  const admin = createAdminClient();
+  const { data } = await admin.from("push_subscriptions").select("id, endpoint, p256dh, auth");
+  const rows = (data ?? []) as Row[];
+  const body = JSON.stringify({ title: "🔔 Test", body: "MY LIGA — push ishlayapti!", url: "/", tag: "test" });
+
+  let sent = 0;
+  const errors: string[] = [];
+  for (const r of rows) {
+    try {
+      await webpush.sendNotification({ endpoint: r.endpoint, keys: { p256dh: r.p256dh, auth: r.auth } }, body);
+      sent++;
+    } catch (err: unknown) {
+      const e = err as { statusCode?: number; body?: string; message?: string };
+      errors.push(`${e.statusCode ?? "?"}: ${(e.body || e.message || "").toString().slice(0, 140)}`);
+    }
+  }
+  return { configured: true, subscriptions: rows.length, sent, errors };
+}
+
 /** Bitta foydalanuvchining barcha qurilmalariga xabar yuboradi. */
 export async function sendPushToUser(userId: string, payload: PushPayload): Promise<void> {
   if (!ensureConfigured()) return;
