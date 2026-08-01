@@ -84,7 +84,7 @@ export async function diagnoseAndTest(): Promise<{
   const privateKey = process.env.VAPID_PRIVATE_KEY;
   const subject = process.env.VAPID_SUBJECT || "mailto:admin@myliga.app";
   if (!publicKey || !privateKey) {
-    return { configured: false, subscriptions: 0, sent: 0, errors: [] };
+    return { configured: false, subscriptions: 0, sent: 0, errors: [], cleaned: 0 };
   }
   webpush.setVapidDetails(subject, publicKey, privateKey);
 
