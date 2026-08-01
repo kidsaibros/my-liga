@@ -29,10 +29,14 @@ export async function createNews(input: unknown): Promise<ActionResult<News>> {
   revalidateNews();
 
   // Barcha obunachilarga push xabar (push sozlanmagan bo'lsa jimgina o'tkaziladi).
+  // Sarlavha = yangilik nomi, tan = matnning dastlabki 3 so'zi.
   try {
+    const news = data as News;
+    const words = news.body.trim().split(/\s+/);
+    const preview = words.slice(0, 3).join(" ") + (words.length > 3 ? "…" : "");
     await sendPushToAll({
-      title: "📰 Yangi yangilik",
-      body: (data as News).title,
+      title: news.title,
+      body: preview,
       url: "/yangiliklar",
       tag: "news",
     });
