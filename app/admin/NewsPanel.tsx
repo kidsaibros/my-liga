@@ -113,7 +113,7 @@ export function NewsPanel({ initialNews }: { initialNews: News[] }) {
   async function handleTestPush() {
     setToast({ msg: "Push yuborilmoqda...", kind: "success" });
     const res = await testPush();
-    if (res.error) setToast({ msg: res.error, kind: "error" });
+    if (res.error !== null) setToast({ msg: res.error, kind: "error" });
     else setToast({ msg: res.data.message, kind: "success" });
   }
 
