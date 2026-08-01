@@ -13,6 +13,11 @@ const statusOptions: { id: TournamentStatus; label: string }[] = [
   { id: "kelajakdagi", label: "Kelajakdagi" },
 ];
 
+const formatOptions: { id: "liga" | "kubok"; label: string }[] = [
+  { id: "liga", label: "Liga" },
+  { id: "kubok", label: "Kubok" },
+];
+
 type FormState = {
   slug: string;
   name: string;
@@ -21,6 +26,7 @@ type FormState = {
   ends_on: string;
   team_count: string;
   status: TournamentStatus;
+  format: "liga" | "kubok";
   regulations: string;
 };
 
@@ -32,6 +38,7 @@ const emptyForm: FormState = {
   ends_on: "",
   team_count: "0",
   status: "faol",
+  format: "liga",
   regulations: "",
 };
 
@@ -62,6 +69,7 @@ export function TournamentsPanel({ initialTournaments }: { initialTournaments: T
       ends_on: t.ends_on,
       team_count: String(t.team_count),
       status: t.status,
+      format: (t.format as "liga" | "kubok") ?? "liga",
       regulations: t.regulations ?? "",
     });
     setError(null);
@@ -87,6 +95,7 @@ export function TournamentsPanel({ initialTournaments }: { initialTournaments: T
       ends_on: form.ends_on,
       team_count: Number(form.team_count) || 0,
       status: form.status,
+      format: form.format,
       regulations: form.regulations.trim(),
     };
 
@@ -248,6 +257,20 @@ export function TournamentsPanel({ initialTournaments }: { initialTournaments: T
                 </select>
               </Field>
             </div>
+
+            <Field label="Turi (liga jadval tizimida, kubok chiqib ketish)">
+              <select
+                value={form.format}
+                onChange={(e) => setForm({ ...form, format: e.target.value as "liga" | "kubok" })}
+                className={inputCls}
+              >
+                {formatOptions.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
 
             <Field label="Reglament (har bir qoida — alohida qator)">
               <textarea

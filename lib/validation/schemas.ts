@@ -72,6 +72,7 @@ export const tournamentSchema = z
     ends_on: z.iso.date("Tugash sanasi noto'g'ri (YYYY-MM-DD)"),
     team_count: z.coerce.number().int().min(0).max(1000),
     status: tournamentStatusSchema,
+    format: z.enum(["liga", "kubok"]).default("liga"),
     logo_url: optionalUrlSchema,
     // Reglament — har bir qator turnir sahifasida alohida band bo'lib chiqadi.
     regulations: emptyToUndefined(

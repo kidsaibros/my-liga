@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { PillTabs } from "@/components/ui";
 import { XIcon } from "@/components/icons";
-import type { Team, Tournament, News, Sponsor, AppSettings, Profile } from "@/lib/types";
+import type { Team, Tournament, News, Sponsor, AppSettings, Profile, Match, Player } from "@/lib/types";
 import { TournamentsPanel } from "./TournamentsPanel";
+import { MatchesPanel } from "./MatchesPanel";
 import { TeamsPanel } from "./TeamsPanel";
 import { NewsPanel } from "./NewsPanel";
 import { SponsorsPanel } from "./SponsorsPanel";
@@ -13,10 +14,11 @@ import { SettingsPanel } from "./SettingsPanel";
 import { CoachesPanel } from "./CoachesPanel";
 import { NotificationsBell } from "./NotificationsBell";
 
-type AdminTabId = "turnirlar" | "jamoalar" | "murabbiylar" | "yangiliklar" | "homiylar" | "sozlamalar";
+type AdminTabId = "turnirlar" | "oyinlar" | "jamoalar" | "murabbiylar" | "yangiliklar" | "homiylar" | "sozlamalar";
 
 const adminTabs: { id: AdminTabId; label: string }[] = [
   { id: "turnirlar", label: "Turnirlar" },
+  { id: "oyinlar", label: "O'yinlar" },
   { id: "jamoalar", label: "Jamoalar" },
   { id: "murabbiylar", label: "Murabbiylar" },
   { id: "yangiliklar", label: "Yangiliklar" },
@@ -34,6 +36,8 @@ export function AdminSheet({ onClose }: { onClose: () => void }) {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [users, setUsers] = useState<Profile[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -50,7 +54,12 @@ export function AdminSheet({ onClose }: { onClose: () => void }) {
         .not("user_id", "is", null)
         .neq("role", "super_admin")
         .order("full_name", { ascending: true }),
-    ]).then(([t, tm, n, sp, st, u]) => {
+      supabase
+        .from("matches")
+        .select("*, home_team:teams!matches_home_team_id_fkey(*), away_team:teams!matches_away_team_id_fkey(*)")
+        .order("kickoff_at", { ascending: false }),
+      supabase.from("players").select("*").order("name", { ascending: true }),
+    ]).then(([t, tm, n, sp, st, u, m, pl]) => {
       if (!active) return;
       setTournaments((t.data ?? []) as Tournament[]);
       setTeams((tm.data ?? []) as Team[]);
@@ -58,6 +67,8 @@ export function AdminSheet({ onClose }: { onClose: () => void }) {
       setSponsors((sp.data ?? []) as Sponsor[]);
       setSettings((st.data ?? null) as AppSettings | null);
       setUsers((u.data ?? []) as Profile[]);
+      setMatches((m.data ?? []) as unknown as Match[]);
+      setPlayers((pl.data ?? []) as Player[]);
       setLoading(false);
     });
     return () => {
@@ -95,6 +106,9 @@ export function AdminSheet({ onClose }: { onClose: () => void }) {
         ) : (
           <>
             {tab === "turnirlar" && <TournamentsPanel initialTournaments={tournaments} />}
+            {tab === "oyinlar" && (
+              <MatchesPanel initialMatches={matches} tournaments={tournaments} teams={teams} players={players} />
+            )}
             {tab === "jamoalar" && <TeamsPanel initialTeams={teams} tournaments={tournaments} coaches={users} />}
             {tab === "murabbiylar" && <CoachesPanel initialUsers={users} teams={teams} />}
             {tab === "yangiliklar" && <NewsPanel initialNews={news} />}

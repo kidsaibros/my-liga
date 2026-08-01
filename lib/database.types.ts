@@ -59,6 +59,7 @@ export type Database = {
           ends_on: string;
           team_count: number;
           status: string;
+          format: string;
           logo_url: string | null;
           regulations: string | null;
           created_at: string;
@@ -72,11 +73,29 @@ export type Database = {
           ends_on: string;
           team_count?: number;
           status: string;
+          format?: string;
           logo_url?: string | null;
           regulations?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["tournaments"]["Insert"]>;
+        Relationships: [];
+      };
+
+      tournament_teams: {
+        Row: {
+          id: string;
+          tournament_id: string;
+          team_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          tournament_id: string;
+          team_id: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["tournament_teams"]["Insert"]>;
         Relationships: [];
       };
 
