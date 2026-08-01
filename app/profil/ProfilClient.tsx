@@ -129,78 +129,87 @@ export function ProfilClient({
 
   return (
     <Screen>
-      <div className="flex flex-col items-center gap-4 px-5 pt-6 pb-6">
-        <Avatar url={profile.avatar_url} name={profile.full_name} size={88} glow="0 0 34px rgba(14,159,110,0.35)" />
+      <div className="flex h-full flex-col">
+        {/* Yuqori — qotib turadi */}
+        <div className="flex flex-none flex-col items-center gap-4 px-5 pt-6 pb-4">
+          <Avatar url={profile.avatar_url} name={profile.full_name} size={88} glow="0 0 34px rgba(14,159,110,0.35)" />
 
-        <div className="text-center">
-          <div className="text-xl font-extrabold tracking-tight">{profile.full_name}</div>
-          <div className="mt-1 text-xs" style={{ color: "var(--fg-soft)" }}>
-            {email}
+          <div className="text-center">
+            <div className="text-xl font-extrabold tracking-tight">{profile.full_name}</div>
+            <div className="mt-1 text-xs" style={{ color: "var(--fg-soft)" }}>
+              {email}
+            </div>
+            <div className="mt-2 flex justify-center">
+              <Badge tone={badge.tone}>{badge.label}</Badge>
+            </div>
           </div>
-          <div className="mt-2 flex justify-center">
-            <Badge tone={badge.tone}>{badge.label}</Badge>
-          </div>
-        </div>
 
-        {profile.role === "super_admin" && (
-          <Link
-            href="/admin"
-            className="flex w-full items-center justify-center rounded-xl py-3 text-[13.5px] font-bold"
-            style={{ background: "linear-gradient(120deg,#22C55E,#0E9F6E)", color: "#062016" }}
-          >
-            Admin Panel
-          </Link>
-        )}
-
-        <div className="grid w-full grid-cols-3 gap-2.5">
-          {stats.map((s) => (
+          {profile.role === "super_admin" && (
             <Link
-              key={s.label}
-              href={s.href}
-              className="flex flex-col items-center gap-1 rounded-[18px] border py-4 transition-opacity hover:opacity-80"
-              style={{ borderColor: "var(--border)", background: "var(--card)" }}
+              href="/admin"
+              className="flex w-full items-center justify-center rounded-xl py-3 text-[13.5px] font-bold"
+              style={{ background: "linear-gradient(120deg,#22C55E,#0E9F6E)", color: "#062016" }}
             >
-              <div className="text-2xl font-extrabold" style={{ color: "#0E9F6E" }}>
-                {s.value}
-              </div>
-              <div className="text-[10.5px]" style={{ color: "var(--fg-muted)" }}>
-                {s.label}
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        <div className="flex w-full flex-col gap-2">
-          <ThemeMenuRow />
-          <MenuRow icon={<HelpIcon size={17} />} label="Yordam" onClick={() => setOpenSheet("help")} />
-          <MenuRow icon={<StarIcon size={17} />} label="Sevimlilar" onClick={() => setOpenSheet("favorites")} />
-          <MenuRow icon={<SettingsIcon size={17} />} label="Sozlamalar" onClick={() => setOpenSheet("settings")} />
-          <Link href="/maxfiylik" className="block">
-            <MenuRow icon={<ShieldIcon size={17} />} label="Maxfiylik siyosati" as="div" />
-          </Link>
-
-          {profile.role === "coach" && (
-            <Link href="/coach" className="block">
-              <MenuRow icon={<ShieldIcon size={17} />} label="Mening Jamoam" as="div" />
+              Admin Panel
             </Link>
           )}
-          {profile.team_id && (
-            <Link href="/oyin" className="block">
-              <MenuRow icon={<ChartIcon size={17} />} label="Mening O'yinlarim" as="div" />
-            </Link>
-          )}
+
+          <div className="grid w-full grid-cols-3 gap-2.5">
+            {stats.map((s) => (
+              <Link
+                key={s.label}
+                href={s.href}
+                className="flex flex-col items-center gap-1 rounded-[18px] border py-4 transition-opacity hover:opacity-80"
+                style={{ borderColor: "var(--border)", background: "var(--card)" }}
+              >
+                <div className="text-2xl font-extrabold" style={{ color: "#0E9F6E" }}>
+                  {s.value}
+                </div>
+                <div className="text-[10.5px]" style={{ color: "var(--fg-muted)" }}>
+                  {s.label}
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
 
-        <form action={logout} className="w-full">
-          <button
-            type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-xl border py-3 text-[13px] font-bold"
-            style={{ borderColor: "rgba(239,68,68,0.3)", background: "rgba(239,68,68,0.08)", color: "#F87171" }}
-          >
-            <LogOutIcon size={16} />
-            Chiqish
-          </button>
-        </form>
+        {/* O'rta menyu — faqat shu joy alohida scroll bo'ladi (kelajakda sozlama qo'shilsa ham) */}
+        <div className="min-h-0 flex-1 overflow-y-auto px-5">
+          <div className="flex w-full flex-col gap-2 pb-3">
+            <ThemeMenuRow />
+            <MenuRow icon={<HelpIcon size={17} />} label="Yordam" onClick={() => setOpenSheet("help")} />
+            <MenuRow icon={<StarIcon size={17} />} label="Sevimlilar" onClick={() => setOpenSheet("favorites")} />
+            <MenuRow icon={<SettingsIcon size={17} />} label="Sozlamalar" onClick={() => setOpenSheet("settings")} />
+            <Link href="/maxfiylik" className="block">
+              <MenuRow icon={<ShieldIcon size={17} />} label="Maxfiylik siyosati" as="div" />
+            </Link>
+
+            {profile.role === "coach" && (
+              <Link href="/coach" className="block">
+                <MenuRow icon={<ShieldIcon size={17} />} label="Mening Jamoam" as="div" />
+              </Link>
+            )}
+            {profile.team_id && (
+              <Link href="/oyin" className="block">
+                <MenuRow icon={<ChartIcon size={17} />} label="Mening O'yinlarim" as="div" />
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {/* Past — qotib turadi */}
+        <div className="flex-none px-5 pb-6 pt-3">
+          <form action={logout} className="w-full">
+            <button
+              type="submit"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border py-3 text-[13px] font-bold"
+              style={{ borderColor: "rgba(239,68,68,0.3)", background: "rgba(239,68,68,0.08)", color: "#F87171" }}
+            >
+              <LogOutIcon size={16} />
+              Chiqish
+            </button>
+          </form>
+        </div>
       </div>
 
       {openSheet === "help" && <HelpSheet settings={settings} onClose={() => setOpenSheet(null)} />}
