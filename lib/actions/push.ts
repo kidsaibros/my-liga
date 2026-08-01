@@ -19,12 +19,20 @@ export async function testPush(): Promise<ActionResult<{ message: string }>> {
     return { data: null, error: "VAPID kalitlar serverda yo'q — Vercel env qo'shib, Redeploy qiling" };
   }
   if (r.subscriptions === 0) {
-    return { data: null, error: "Hech qanday obuna yo'q — telefonda Sozlamalar → Push'ni qayta yoqing" };
+    return { data: null, error: "Hech qanday obuna yo'q — Sozlamalar → Push'ni yoqing" };
   }
-  if (r.sent > 0 && r.errors.length === 0) {
-    return { data: { message: `✅ ${r.sent} ta qurilmaga yuborildi — telefonni tekshiring` }, error: null };
+  // Kamida bitta tirik qurilmaga yetdi — muvaffaqiyat (o'lgan obunalar tozalandi).
+  if (r.sent > 0) {
+    return { data: { message: `✅ ${r.sent} ta qurilmaga yuborildi — bildirishnomani tekshiring` }, error: null };
   }
-  return { data: null, error: `Yuborishda xato (${r.subscriptions} obuna): ${r.errors.join(" | ")}` };
+  // Hech biriga yetmadi. Agar hammasi o'lgan bo'lsa — tozaladik, qayta yoqish kerak.
+  if (r.cleaned > 0) {
+    return {
+      data: null,
+      error: `${r.cleaned} ta eski obuna o'chirildi. Endi Sozlamalar → Push'ni O'CHIRIB, QAYTA YOQING, so'ng qayta bosing.`,
+    };
+  }
+  return { data: null, error: `Yuborishda xato: ${r.errors.join(" | ") || "noma'lum"}` };
 }
 
 const subscriptionSchema = z.object({

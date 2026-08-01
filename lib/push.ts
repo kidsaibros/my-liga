@@ -78,6 +78,7 @@ export async function diagnoseAndTest(): Promise<{
   subscriptions: number;
   sent: number;
   errors: string[];
+  cleaned: number;
 }> {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
@@ -94,16 +95,22 @@ export async function diagnoseAndTest(): Promise<{
 
   let sent = 0;
   const errors: string[] = [];
+  const deadIds: string[] = [];
   for (const r of rows) {
     try {
       await webpush.sendNotification({ endpoint: r.endpoint, keys: { p256dh: r.p256dh, auth: r.auth } }, body);
       sent++;
     } catch (err: unknown) {
       const e = err as { statusCode?: number; body?: string; message?: string };
-      errors.push(`${e.statusCode ?? "?"}: ${(e.body || e.message || "").toString().slice(0, 140)}`);
+      // 404/410 — obuna o'lgan/bekor qilingan. Bazadan tozalaymiz.
+      if (e.statusCode === 404 || e.statusCode === 410) deadIds.push(r.id);
+      else errors.push(`${e.statusCode ?? "?"}: ${(e.body || e.message || "").toString().slice(0, 140)}`);
     }
   }
-  return { configured: true, subscriptions: rows.length, sent, errors };
+  if (deadIds.length > 0) {
+    await admin.from("push_subscriptions").delete().in("id", deadIds);
+  }
+  return { configured: true, subscriptions: rows.length, sent, errors, cleaned: deadIds.length };
 }
 
 /** Bitta foydalanuvchining barcha qurilmalariga xabar yuboradi. */
