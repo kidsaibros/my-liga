@@ -30,10 +30,13 @@ export const CACHE_TAGS = {
   sponsors: "sponsors",
 } as const;
 
+export type LeagueChip = { id: string; name: string; slug: string };
+
 export type HomeData = {
   matches: Match[];
   activeTournaments: number;
   sponsors: Sponsor[];
+  leagues: LeagueChip[];
 };
 
 /**
@@ -48,7 +51,7 @@ export async function getHomeData(): Promise<HomeData> {
 
   const supabase = createPublicClient();
 
-  const [{ data: matches }, { count }, { data: sponsors }] = await Promise.all([
+  const [{ data: matches }, { count }, { data: sponsors }, { data: leagues }] = await Promise.all([
     supabase
       .from("matches")
       .select("*, home_team:teams!matches_home_team_id_fkey(*), away_team:teams!matches_away_team_id_fkey(*)")
@@ -57,12 +60,19 @@ export async function getHomeData(): Promise<HomeData> {
       .limit(3),
     supabase.from("tournaments").select("*", { count: "exact", head: true }).eq("status", "faol"),
     supabase.from("sponsors").select("*").order("sort_order", { ascending: true }),
+    supabase
+      .from("tournaments")
+      .select("id, name, slug")
+      .eq("format", "liga")
+      .eq("status", "faol")
+      .order("name", { ascending: true }),
   ]);
 
   return {
     matches: (matches ?? []) as unknown as Match[],
     activeTournaments: count ?? 0,
     sponsors: (sponsors ?? []) as Sponsor[],
+    leagues: (leagues ?? []) as LeagueChip[],
   };
 }
 

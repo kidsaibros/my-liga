@@ -1,15 +1,14 @@
-"use client";
+import Link from "next/link";
 
-import { useState } from "react";
-
-const LEAGUES = ["Superliga", "Pro Liga", "Yoshlar ligasi", "Havaskorlar"];
+type Chip = { id: string; name: string; slug: string };
 
 /**
- * Liga-chip qatori — MY LIGA App.dc.html qatorlar 120-124 bilan 1:1.
- * Tanlov hozircha faqat vizual holat (filtrlash yo'q) — yangi dizayn prototipida ham shunday.
+ * Bosh sahifadagi liga tugmalari — endi HAQIQIY ligalar (format = 'liga', faol).
+ * Har biri o'sha liganing turnir sahifasiga (jadval + o'yinlar) olib boradi.
+ * Liga yo'q bo'lsa — hech narsa ko'rsatilmaydi.
  */
-export function LeagueChips() {
-  const [active, setActive] = useState(LEAGUES[0]);
+export function LeagueChips({ leagues }: { leagues: Chip[] }) {
+  if (!leagues || leagues.length === 0) return null;
 
   return (
     <div
@@ -23,31 +22,26 @@ export function LeagueChips() {
         padding: "0 16px 2px",
       }}
     >
-      {LEAGUES.map((league) => {
-        const on = league === active;
-        return (
-          <button
-            key={league}
-            onClick={() => setActive(league)}
-            style={{
-              flex: "none",
-              border: `1px solid ${on ? "#0E9F6E" : "var(--border)"}`,
-              background: on ? "#0E9F6E" : "transparent",
-              color: on ? "#fff" : "var(--fg-soft)",
-              borderRadius: 99,
-              padding: "7px 15px",
-              fontSize: 12.5,
-              fontWeight: 700,
-              cursor: "pointer",
-              fontFamily: "inherit",
-              whiteSpace: "nowrap",
-              transition: "all .2s ease",
-            }}
-          >
-            {league}
-          </button>
-        );
-      })}
+      {leagues.map((lg) => (
+        <Link
+          key={lg.id}
+          href={`/turnirlar/${lg.slug}`}
+          style={{
+            flex: "none",
+            border: "1px solid var(--border)",
+            background: "transparent",
+            color: "var(--fg-soft)",
+            borderRadius: 99,
+            padding: "7px 15px",
+            fontSize: 12.5,
+            fontWeight: 700,
+            whiteSpace: "nowrap",
+            textDecoration: "none",
+          }}
+        >
+          {lg.name}
+        </Link>
+      ))}
     </div>
   );
 }

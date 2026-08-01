@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { createMatch, updateMatch, updateMatchScore, deleteMatch } from "@/lib/actions/matches";
 import { MatchEventsEditor } from "./MatchEventsEditor";
 import { formatMatchDateTime } from "@/lib/format";
@@ -69,6 +70,32 @@ export function MatchesPanel({
   // Hisob tahriri qaysi uchrashuvda ochiq
   const [scoringId, setScoringId] = useState<string | null>(null);
   const [score, setScore] = useState({ home: "0", away: "0", status: "finished" as MatchStatus, minute: "0" });
+
+  // Tanlangan turnir (liga) a'zolari — o'yin qo'shishda jamoa ro'yxatini shularga cheklaymiz.
+  const [memberIds, setMemberIds] = useState<Set<string> | null>(null);
+  useEffect(() => {
+    if (editingId === null || !form.tournament_id) {
+      setMemberIds(null);
+      return;
+    }
+    let active = true;
+    createClient()
+      .from("tournament_teams")
+      .select("team_id")
+      .eq("tournament_id", form.tournament_id)
+      .then(({ data }) => {
+        if (active) setMemberIds(new Set((data ?? []).map((r) => r.team_id as string)));
+      });
+    return () => {
+      active = false;
+    };
+  }, [editingId, form.tournament_id]);
+
+  // A'zolar belgilangan bo'lsa — faqat shular; aks holda barcha jamoalar (zaxira).
+  const formTeams = useMemo(
+    () => (memberIds && memberIds.size > 0 ? teams.filter((t) => memberIds.has(t.id)) : teams),
+    [teams, memberIds]
+  );
 
   const visible = useMemo(
     () =>
@@ -383,7 +410,7 @@ export function MatchesPanel({
                   className={inputCls}
                 >
                   <option value="">Tanlang...</option>
-                  {teams.map((t) => (
+                  {formTeams.map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.name}
                     </option>
@@ -398,7 +425,7 @@ export function MatchesPanel({
                   className={inputCls}
                 >
                   <option value="">Tanlang...</option>
-                  {teams.map((t) => (
+                  {formTeams.map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.name}
                     </option>

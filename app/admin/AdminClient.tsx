@@ -70,7 +70,7 @@ export function AdminClient({
 
       <PillTabs tabs={adminTabs} active={tab} onChange={setTab} />
 
-      {tab === "turnirlar" && <TournamentsPanel initialTournaments={tournaments} />}
+      {tab === "turnirlar" && <TournamentsPanel initialTournaments={tournaments} teams={teams} />}
       {tab === "oyinlar" && (
         <MatchesPanel
           initialMatches={matches}

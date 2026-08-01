@@ -109,7 +109,7 @@ export default async function HomePage() {
               </svg>
             </div>
             <div style={{ fontSize: 13, fontWeight: 800, color: "var(--fg)" }}>Ligalar</div>
-            <div style={{ fontSize: 11, color: "var(--fg-soft)", fontWeight: 500 }}>8 ta faol</div>
+            <div style={{ fontSize: 11, color: "var(--fg-soft)", fontWeight: 500 }}>{home.leagues.length} ta faol</div>
           </Link>
 
           <Link
@@ -206,7 +206,7 @@ export default async function HomePage() {
           )}
         </div>
 
-        <LeagueChips />
+        <LeagueChips leagues={home.leagues} />
       </div>
     </Screen>
   );

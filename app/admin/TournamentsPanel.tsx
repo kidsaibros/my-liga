@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { createTournament, updateTournament, deleteTournament } from "@/lib/actions/tournaments";
-import type { Tournament, TournamentStatus } from "@/lib/types";
+import { addTeamToTournament, removeTeamFromTournament } from "@/lib/actions/tournament-teams";
+import { createClient } from "@/lib/supabase/client";
+import type { Tournament, TournamentStatus, Team } from "@/lib/types";
 import { PlusIcon } from "@/components/icons";
 import { Toast } from "@/components/Toast";
 import { slugify } from "@/lib/format";
@@ -42,8 +44,49 @@ const emptyForm: FormState = {
   regulations: "",
 };
 
-export function TournamentsPanel({ initialTournaments }: { initialTournaments: Tournament[] }) {
+export function TournamentsPanel({
+  initialTournaments,
+  teams = [],
+}: {
+  initialTournaments: Tournament[];
+  teams?: Team[];
+}) {
   const [items, setItems] = useState(initialTournaments);
+  // Liga a'zoligi editori
+  const [memberFor, setMemberFor] = useState<Tournament | null>(null);
+  const [memberIds, setMemberIds] = useState<Set<string>>(new Set());
+  const [memberLoading, setMemberLoading] = useState(false);
+  const [memberBusy, setMemberBusy] = useState<string | null>(null);
+
+  async function openMembers(t: Tournament) {
+    setMemberFor(t);
+    setMemberLoading(true);
+    setMemberIds(new Set());
+    const supabase = createClient();
+    const { data } = await supabase.from("tournament_teams").select("team_id").eq("tournament_id", t.id);
+    setMemberIds(new Set((data ?? []).map((r) => r.team_id as string)));
+    setMemberLoading(false);
+  }
+
+  async function toggleMember(teamId: string) {
+    if (!memberFor) return;
+    setMemberBusy(teamId);
+    const isMember = memberIds.has(teamId);
+    const res = isMember
+      ? await removeTeamFromTournament(memberFor.id, teamId)
+      : await addTeamToTournament(memberFor.id, teamId);
+    if (res.error === null) {
+      setMemberIds((prev) => {
+        const next = new Set(prev);
+        if (isMember) next.delete(teamId);
+        else next.add(teamId);
+        return next;
+      });
+    } else {
+      setToast({ msg: res.error, kind: "error" });
+    }
+    setMemberBusy(null);
+  }
   const [editingId, setEditingId] = useState<string | "new" | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [error, setError] = useState<string | null>(null);
@@ -151,6 +194,12 @@ export function TournamentsPanel({ initialTournaments }: { initialTournaments: T
                 {t.dates_label} · {t.team_count} ta jamoa · {t.status}
               </div>
             </div>
+            <button
+              onClick={() => openMembers(t)}
+              className="rounded-lg border border-[rgba(47,216,113,0.3)] bg-[rgba(47,216,113,0.08)] px-3 py-1.5 text-[11px] font-semibold text-[#0E9F6E]"
+            >
+              Jamoalar
+            </button>
             <button
               onClick={() => openEdit(t)}
               className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-[11px] font-semibold"
@@ -302,6 +351,66 @@ export function TournamentsPanel({ initialTournaments }: { initialTournaments: T
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {memberFor && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
+          onClick={() => setMemberFor(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="flex max-h-[85vh] w-full max-w-md flex-col gap-3 overflow-y-auto rounded-t-[24px] border border-[var(--border)] bg-[#0B0F0C] p-5 sm:rounded-[24px]"
+          >
+            <div className="text-[15px] font-bold">{memberFor.name} — jamoalar</div>
+            <div className="text-[11px] text-[var(--fg-muted)]">
+              Shu ligada qatnashadigan jamoalarni belgilang. O'yin qo'shishda faqat shular tanlanadi.
+            </div>
+
+            {memberLoading ? (
+              <div className="py-6 text-center text-[12px] text-[var(--fg-muted)]">Yuklanmoqda...</div>
+            ) : teams.length === 0 ? (
+              <div className="py-6 text-center text-[12px] text-[var(--fg-muted)]">
+                Avval &quot;Jamoalar&quot; bo&apos;limida jamoa qo&apos;shing
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {teams.map((tm) => {
+                  const on = memberIds.has(tm.id);
+                  return (
+                    <button
+                      key={tm.id}
+                      type="button"
+                      onClick={() => toggleMember(tm.id)}
+                      disabled={memberBusy === tm.id}
+                      className="flex items-center justify-between rounded-xl border px-3.5 py-2.5 text-left disabled:opacity-60"
+                      style={{
+                        borderColor: on ? "rgba(47,216,113,0.5)" : "var(--border)",
+                        background: on ? "rgba(47,216,113,0.08)" : "var(--card)",
+                      }}
+                    >
+                      <span className="text-[13px] font-semibold">{tm.name}</span>
+                      <span
+                        className="text-[11px] font-bold"
+                        style={{ color: on ? "#0E9F6E" : "var(--fg-muted)" }}
+                      >
+                        {memberBusy === tm.id ? "..." : on ? "A'zo ✓" : "Qo'shish"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setMemberFor(null)}
+              className="mt-1 rounded-xl border border-[var(--border)] bg-[var(--card)] py-2.5 text-[13px] font-semibold"
+            >
+              Yopish
+            </button>
+          </div>
         </div>
       )}
 

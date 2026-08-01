@@ -105,7 +105,7 @@ export function AdminSheet({ onClose }: { onClose: () => void }) {
           <div className="py-8 text-center text-[12px] text-[var(--fg-muted)]">Yuklanmoqda...</div>
         ) : (
           <>
-            {tab === "turnirlar" && <TournamentsPanel initialTournaments={tournaments} />}
+            {tab === "turnirlar" && <TournamentsPanel initialTournaments={tournaments} teams={teams} />}
             {tab === "oyinlar" && (
               <MatchesPanel initialMatches={matches} tournaments={tournaments} teams={teams} players={players} />
             )}
