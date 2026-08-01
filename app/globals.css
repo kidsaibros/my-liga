@@ -85,8 +85,10 @@ a:hover {
   position: relative;
   margin: 0 auto;
   width: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
+  /* Aniq balandlik (min-height emas) — shunda ichki flex bolalar `h-full`/scroll
+     to'g'ri ishlaydi (masalan profil sahifasidagi o'rta menyu alohida scroll bo'ladi). */
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--bg);
@@ -95,6 +97,7 @@ a:hover {
 
 .app-scroll {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;

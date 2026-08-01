@@ -4,6 +4,7 @@ import "./globals.css";
 import { SessionProvider } from "@/components/SessionProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Splash } from "@/components/Splash";
+import { PushKeepAlive } from "@/components/PushKeepAlive";
 import { getSessionProfile } from "@/lib/auth";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -42,6 +43,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <div className="app-frame">
             <Splash />
+            <PushKeepAlive />
             {/* Safe-area top spacer — native status bar shu yerda joylashadi (prototip bilan 1:1) */}
             <div style={{ height: "env(safe-area-inset-top, 16px)", flex: "none" }} />
             <SessionProvider profile={profile}>
