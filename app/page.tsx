@@ -6,6 +6,7 @@ import { getHomeData } from "@/lib/cache";
 import { formatMatchDateTime } from "@/lib/format";
 import { getSessionProfile } from "@/lib/auth";
 import { Avatar } from "@/components/Avatar";
+import { LiveMinute } from "@/components/LiveMinute";
 import type { Match } from "@/lib/types";
 
 /** Bosh sahifa — MY LIGA App.dc.html "HOME" bloki bilan 1:1 (qatorlar 65-125). */
@@ -166,14 +167,55 @@ export default async function HomePage() {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: "#EF4444" }}>
-                      ● JONLI{m.minute ? ` · ${m.minute}'` : ""}
-                    </span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#EF4444" }}>● JONLI</span>
                     <span style={{ fontSize: 11, color: "var(--fg-soft)", fontWeight: 500 }}>{m.venue}</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, gap: 8 }}>
                     <TeamMini team={m.home_team} />
-                    <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -1 }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                      <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -1 }}>
+                        {m.home_score} : {m.away_score}
+                      </div>
+                      <div style={{ fontSize: 10.5, fontWeight: 700, color: "#EF4444" }}>
+                        <LiveMinute startedAt={m.live_started_at} fallback={m.minute} />
+                      </div>
+                    </div>
+                    <TeamMini team={m.away_team} />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Tugatilgan o'yinlar — yaqinda yakunlangan uchrashuvlar (status: finished) */}
+        {home.finishedMatches.length > 0 && (
+          <>
+            <div style={{ margin: "20px 2px 10px", fontSize: 16, fontWeight: 800 }}>Tugatilgan o&apos;yinlar</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {home.finishedMatches.map((m) => (
+                <Link
+                  key={m.id}
+                  href="/oyin"
+                  style={{
+                    display: "block",
+                    background: "var(--card)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 18,
+                    padding: 14,
+                    textDecoration: "none",
+                    color: "var(--fg)",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--fg-muted)" }}>Tugadi</span>
+                    <span style={{ fontSize: 11, color: "var(--fg-soft)", fontWeight: 500 }}>
+                      {formatMatchDateTime(m.kickoff_at)}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, gap: 8 }}>
+                    <TeamMini team={m.home_team} />
+                    <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: -1 }}>
                       {m.home_score} : {m.away_score}
                     </div>
                     <TeamMini team={m.away_team} />

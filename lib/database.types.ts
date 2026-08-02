@@ -162,6 +162,7 @@ export type Database = {
           kickoff_at: string;
           is_featured: boolean;
           reminder_sent: boolean;
+          live_started_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -178,6 +179,7 @@ export type Database = {
           kickoff_at: string;
           is_featured?: boolean;
           reminder_sent?: boolean;
+          live_started_at?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["matches"]["Insert"]>;

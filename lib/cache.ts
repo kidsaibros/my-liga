@@ -35,6 +35,7 @@ export type LeagueChip = { id: string; name: string; slug: string };
 export type HomeData = {
   matches: Match[];
   liveMatches: Match[];
+  finishedMatches: Match[];
   activeTournaments: number;
   sponsors: Sponsor[];
   leagues: LeagueChip[];
@@ -55,7 +56,14 @@ export async function getHomeData(): Promise<HomeData> {
   const matchSelect =
     "*, home_team:teams!matches_home_team_id_fkey(*), away_team:teams!matches_away_team_id_fkey(*)";
 
-  const [{ data: matches }, { data: live }, { count }, { data: sponsors }, { data: leagues }] = await Promise.all([
+  const [
+    { data: matches },
+    { data: live },
+    { data: finished },
+    { count },
+    { data: sponsors },
+    { data: leagues },
+  ] = await Promise.all([
     supabase
       .from("matches")
       .select(matchSelect)
@@ -67,6 +75,12 @@ export async function getHomeData(): Promise<HomeData> {
       .select(matchSelect)
       .eq("status", "live")
       .order("kickoff_at", { ascending: true }),
+    supabase
+      .from("matches")
+      .select(matchSelect)
+      .eq("status", "finished")
+      .order("kickoff_at", { ascending: false })
+      .limit(3),
     supabase.from("tournaments").select("*", { count: "exact", head: true }).eq("status", "faol"),
     supabase.from("sponsors").select("*").order("sort_order", { ascending: true }),
     supabase
@@ -80,6 +94,7 @@ export async function getHomeData(): Promise<HomeData> {
   return {
     matches: (matches ?? []) as unknown as Match[],
     liveMatches: (live ?? []) as unknown as Match[],
+    finishedMatches: (finished ?? []) as unknown as Match[],
     activeTournaments: count ?? 0,
     sponsors: (sponsors ?? []) as Sponsor[],
     leagues: (leagues ?? []) as LeagueChip[],
