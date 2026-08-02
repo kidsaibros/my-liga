@@ -48,6 +48,13 @@ export function MatchClient({
   const [draft, setDraft] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
   const [shared, setShared] = useState(false);
+  // Jonli hisob — realtime orqali yangilanadi (admin gol qo'shsa refresh'siz o'zgaradi).
+  const [live, setLive] = useState({
+    home_score: match.home_score,
+    away_score: match.away_score,
+    status: match.status,
+    minute: match.minute,
+  });
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // O'yinni ulashish: telefonda tizim ulashish oynasi, aks holda havolani nusxalash.
@@ -77,6 +84,19 @@ export function MatchClient({
         { event: "INSERT", schema: "public", table: "chat_messages", filter: `match_id=eq.${match.id}` },
         (payload) => {
           setMessages((prev) => [...prev, payload.new as ChatMessage]);
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "matches", filter: `id=eq.${match.id}` },
+        (payload) => {
+          const n = payload.new as Partial<Match>;
+          setLive((prev) => ({
+            home_score: n.home_score ?? prev.home_score,
+            away_score: n.away_score ?? prev.away_score,
+            status: n.status ?? prev.status,
+            minute: n.minute ?? prev.minute,
+          }));
         }
       )
       .subscribe();
@@ -177,11 +197,11 @@ export function MatchClient({
 
           <div className="flex flex-col items-center gap-2">
             <div className="text-[34px] font-extrabold leading-none tracking-tighter">
-              {match.home_score}
+              {live.home_score}
               <span className="mx-1.5 text-[var(--fg-muted)]">:</span>
-              {match.away_score}
+              {live.away_score}
             </div>
-            {match.status === "live" ? (
+            {live.status === "live" ? (
               <span
                 className="flex items-center gap-2 rounded-full px-3.5 py-1.5"
                 style={{
@@ -201,10 +221,10 @@ export function MatchClient({
                   className="text-[10.5px] font-extrabold tracking-wider text-[#F58080]"
                   style={{ animation: "livePulse 1.4s ease-in-out infinite" }}
                 >
-                  LIVE · {match.minute}&apos;
+                  LIVE · {live.minute}&apos;
                 </span>
               </span>
-            ) : match.status === "finished" ? (
+            ) : live.status === "finished" ? (
               <span className="rounded-full border border-[rgba(47,216,113,0.4)] bg-[rgba(47,216,113,0.12)] px-3.5 py-1.5 text-[10.5px] font-extrabold text-[#3BE07C]">
                 Tugadi
               </span>
