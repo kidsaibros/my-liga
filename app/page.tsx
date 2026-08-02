@@ -140,6 +140,50 @@ export default async function HomePage() {
         {/* Homiylar banneri */}
         <SponsorBanner sponsors={sponsors} />
 
+        {/* Jonli o'yin — hozir ketayotgan uchrashuvlar (status: live) */}
+        {home.liveMatches.length > 0 && (
+          <>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "20px 2px 10px" }}>
+              <span style={{ position: "relative", display: "inline-flex", width: 9, height: 9 }}>
+                <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#EF4444", animation: "livePing 1.4s ease-out infinite" }} />
+                <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#EF4444" }} />
+              </span>
+              <div style={{ fontSize: 16, fontWeight: 800 }}>Jonli o&apos;yin</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {home.liveMatches.map((m) => (
+                <Link
+                  key={m.id}
+                  href="/oyin"
+                  style={{
+                    display: "block",
+                    background: "var(--card)",
+                    border: "1px solid rgba(239,68,68,0.35)",
+                    borderRadius: 18,
+                    padding: 14,
+                    textDecoration: "none",
+                    color: "var(--fg)",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#EF4444" }}>
+                      ● JONLI{m.minute ? ` · ${m.minute}'` : ""}
+                    </span>
+                    <span style={{ fontSize: 11, color: "var(--fg-soft)", fontWeight: 500 }}>{m.venue}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, gap: 8 }}>
+                    <TeamMini team={m.home_team} />
+                    <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -1 }}>
+                      {m.home_score} : {m.away_score}
+                    </div>
+                    <TeamMini team={m.away_team} />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
+
         {/* Yaqin o'yinlar */}
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "20px 2px 10px" }}>
           <div style={{ fontSize: 16, fontWeight: 800 }}>Yaqin o&apos;yinlar</div>
