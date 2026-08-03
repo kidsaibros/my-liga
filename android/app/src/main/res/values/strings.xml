@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MY LIGA</string>
+    <string name="title_activity_main">MY LIGA</string>
+    <string name="package_name">uz.myliga.app</string>
+    <string name="custom_url_scheme">uz.myliga.app</string>
+</resources>
