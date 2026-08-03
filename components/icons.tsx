@@ -138,6 +138,14 @@ export const PinIcon = (p: IconProps) => (
   </svg>
 );
 
+export const BallIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7.5l3.2 2.3-1.2 3.7h-4l-1.2-3.7L12 7.5Z" />
+    <path d="M12 7.5V4m3.2 5.8 3-1.4m-4.2 5.1 2.3 2.8M9.8 13.5l-2.3 2.8M8.8 9.8l-3-1.4" />
+  </svg>
+);
+
 export const XIcon = (p: IconProps) => (
   <svg {...base({ strokeWidth: 2, ...p })}>
     <path d="M18 6 6 18" />

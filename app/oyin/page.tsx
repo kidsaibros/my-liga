@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { ChatMessage, Lineup, Match, Player, Standing } from "@/lib/types";
+import type { ChatMessage, Lineup, Match, MatchEvent, Player, Standing } from "@/lib/types";
 import { MatchClient } from "./MatchClient";
 
 /** Live o'yin va chat — hech qachon keshlanmaydi. */
@@ -27,14 +27,17 @@ export default async function MatchPage() {
 
   const teamIds = [match.home_team_id, match.away_team_id];
 
-  const [{ data: messages }, { data: players }, { data: lineups }, { data: standings }] = await Promise.all([
-    supabase.from("chat_messages").select("*").eq("match_id", match.id).order("created_at", { ascending: true }),
-    // «Tarkib» tabi uchun
-    supabase.from("players").select("*").in("team_id", teamIds).order("number", { ascending: true }),
-    supabase.from("lineups").select("*").in("team_id", teamIds),
-    // «O'yin haqida» tabidagi turnir jadvalidagi o'rin
-    supabase.from("standings").select("*, team:teams(*)").eq("tournament_id", match.tournament_id),
-  ]);
+  const [{ data: messages }, { data: players }, { data: lineups }, { data: standings }, { data: events }] =
+    await Promise.all([
+      supabase.from("chat_messages").select("*").eq("match_id", match.id).order("created_at", { ascending: true }),
+      // «Tarkib» tabi uchun
+      supabase.from("players").select("*").in("team_id", teamIds).order("number", { ascending: true }),
+      supabase.from("lineups").select("*").in("team_id", teamIds),
+      // «O'yin haqida» tabidagi turnir jadvalidagi o'rin
+      supabase.from("standings").select("*, team:teams(*)").eq("tournament_id", match.tournament_id),
+      // Gol/hodisa tasmasi — realtime bilan jonli yangilanadi
+      supabase.from("match_events").select("*").eq("match_id", match.id).order("minute", { ascending: true, nullsFirst: false }),
+    ]);
 
   return (
     <MatchClient
@@ -43,6 +46,7 @@ export default async function MatchPage() {
       players={(players ?? []) as Player[]}
       lineups={(lineups ?? []) as Lineup[]}
       standings={(standings ?? []) as unknown as Standing[]}
+      initialEvents={(events ?? []) as MatchEvent[]}
     />
   );
 }

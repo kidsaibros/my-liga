@@ -50,6 +50,8 @@ const match: Match = {
   venue: null,
   kickoff_at: "2026-05-25T18:00:00Z",
   is_featured: false,
+  reminder_sent: false,
+  live_started_at: null,
   created_at: "2026-01-01T00:00:00Z",
   home_team: home,
   away_team: away,

@@ -3,11 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Crest } from "@/components/ui";
-import { BackIcon, ShareIcon, CalendarIcon, PinIcon, SendIcon } from "@/components/icons";
+import { BackIcon, ShareIcon, CalendarIcon, PinIcon, SendIcon, BallIcon } from "@/components/icons";
 import { createClient } from "@/lib/supabase/client";
 import { useSessionProfile } from "@/components/SessionProvider";
 import { formatMatchDateTime } from "@/lib/format";
-import type { ChatMessage, Lineup, Match, Player, PlayerPosition, Standing, Team } from "@/lib/types";
+import type { ChatMessage, Lineup, Match, MatchEvent, Player, PlayerPosition, Standing, Team } from "@/lib/types";
 
 const tabs = ["Tarkib", "O'yin haqida", "Live chat"];
 
@@ -31,12 +31,14 @@ export function MatchClient({
   players = [],
   lineups = [],
   standings = [],
+  initialEvents = [],
 }: {
   match: Match;
   initialMessages: ChatMessage[];
   players?: Player[];
   lineups?: Lineup[];
   standings?: Standing[];
+  initialEvents?: MatchEvent[];
 }) {
   const router = useRouter();
   // Cookie-aware brauzer klienti — auth sessiyasi bilan bir xil (eski umumiy
@@ -55,6 +57,8 @@ export function MatchClient({
     status: match.status,
     minute: match.minute,
   });
+  // Gol/hodisa tasmasi — realtime orqali admin yangi gol qo'shsa refresh'siz paydo bo'ladi.
+  const [events, setEvents] = useState<MatchEvent[]>(initialEvents);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // O'yinni ulashish: telefonda tizim ulashish oynasi, aks holda havolani nusxalash.
@@ -97,6 +101,24 @@ export function MatchClient({
             status: n.status ?? prev.status,
             minute: n.minute ?? prev.minute,
           }));
+        }
+      )
+      // Yangi gol/hodisa qo'shilganda — tasmaga jonli qo'shiladi (kim, nechanchi daqiqa).
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "match_events", filter: `match_id=eq.${match.id}` },
+        (payload) => {
+          const ev = payload.new as MatchEvent;
+          setEvents((prev) => (prev.some((e) => e.id === ev.id) ? prev : [...prev, ev]));
+        }
+      )
+      // Hodisa o'chirilsa — tasmadan olib tashlanadi.
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "match_events", filter: `match_id=eq.${match.id}` },
+        (payload) => {
+          const oldId = (payload.old as { id?: string }).id;
+          if (oldId) setEvents((prev) => prev.filter((e) => e.id !== oldId));
         }
       )
       .subscribe();
@@ -261,6 +283,13 @@ export function MatchClient({
         </div>
       </div>
 
+      {/* Gollar tasmasi — realtime bilan jonli yangilanadi */}
+      <GoalsFeed
+        events={events}
+        homeTeamId={match.home_team_id}
+        awayTeamId={match.away_team_id}
+      />
+
       {/* Tablar */}
       <div className="mt-4 flex gap-1 border-b border-[var(--border)] px-5">
         {tabs.map((t) => {
@@ -360,8 +389,58 @@ export function MatchClient({
           <TeamRoster team={match.away_team} players={players} lineups={lineups} />
         </div>
       ) : (
-        <MatchInfo match={match} standings={standings} />
+        <MatchInfo match={match} standings={standings} liveStatus={live.status} liveMinute={live.minute} />
       )}
+    </div>
+  );
+}
+
+/**
+ * Gollar tasmasi — kim va nechanchi daqiqada gol urgani.
+ *
+ * Faqat gol turdagi hodisalar ko'rsatiladi (kartochka/uzatma emas). O'z
+ * darvozasiga urilgan gol ham chiqadi, «(o'z darvozasiga)» belgisi bilan —
+ * u urgan o'yinchining jamoasi tomonida turadi. Hech gol bo'lmasa, butun
+ * bo'lim yashiriladi (ekranni band qilmaslik uchun).
+ */
+function GoalsFeed({
+  events,
+  homeTeamId,
+  awayTeamId,
+}: {
+  events: MatchEvent[];
+  homeTeamId: string;
+  awayTeamId: string;
+}) {
+  const goals = events
+    .filter((e) => e.type === "goal" || e.type === "own_goal")
+    .slice()
+    .sort((a, b) => (a.minute ?? 999) - (b.minute ?? 999));
+
+  if (goals.length === 0) return null;
+
+  const home = goals.filter((g) => g.team_id === homeTeamId);
+  const away = goals.filter((g) => g.team_id === awayTeamId);
+
+  const line = (g: MatchEvent, align: "left" | "right") => (
+    <div
+      key={g.id}
+      className="flex items-center gap-1.5 text-[11.5px] text-[var(--fg-soft)]"
+      style={{ flexDirection: align === "right" ? "row-reverse" : "row" }}
+    >
+      <BallIcon size={11} />
+      <span className="font-semibold text-[var(--fg)]">{g.player_name}</span>
+      {g.minute != null && <span className="text-[var(--fg-muted)]">{g.minute}&apos;</span>}
+      {g.type === "own_goal" && <span className="text-[9.5px] text-[var(--fg-muted)]">(o&apos;z d.)</span>}
+    </div>
+  );
+
+  return (
+    <div className="mx-5 mt-3 rounded-[16px] border border-[var(--border)] bg-[var(--card)] px-4 py-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">{home.map((g) => line(g, "left"))}</div>
+        <div className="flex flex-col items-end gap-1.5">{away.map((g) => line(g, "right"))}</div>
+      </div>
     </div>
   );
 }
@@ -461,15 +540,25 @@ function PlayerRow({ player, isCaptain }: { player: Player; isCaptain: boolean }
 }
 
 /** «O'yin haqida» — uchrashuv tafsilotlari va ikkala jamoaning jadvaldagi o'rni. */
-function MatchInfo({ match, standings }: { match: Match; standings: Standing[] }) {
+function MatchInfo({
+  match,
+  standings,
+  liveStatus,
+  liveMinute,
+}: {
+  match: Match;
+  standings: Standing[];
+  liveStatus: Match["status"];
+  liveMinute: Match["minute"];
+}) {
   const rowOf = (teamId: string) => standings.find((s) => s.team_id === teamId);
   const home = rowOf(match.home_team_id);
   const away = rowOf(match.away_team_id);
 
   const statusText =
-    match.status === "live"
-      ? `Jonli${match.minute != null ? ` · ${match.minute}-daqiqa` : ""}`
-      : match.status === "finished"
+    liveStatus === "live"
+      ? `Jonli${liveMinute != null ? ` · ${liveMinute}-daqiqa` : ""}`
+      : liveStatus === "finished"
         ? "Yakunlangan"
         : "Hali boshlanmagan";
 
