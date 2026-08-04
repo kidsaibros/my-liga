@@ -1,0 +1,153 @@
+
+<h2 class="sr-only">Loyiha texnik audit: 5 ta ustuvorlik bo'yicha baholash, umumiy baho 62 dan 100</h2>
+<style>
+.ac{background:var(--surface-1);border:0.5px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.ah{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none}
+.ah:hover{background:var(--surface-0)}
+.ab{display:none;padding:0 14px 12px}
+.ab.open{display:block}
+.fr{display:flex;gap:8px;padding:7px 0;font-size:13.5px;line-height:1.5;border-bottom:0.5px solid var(--border)}
+.fr:last-child{border-bottom:none}
+.rc{border-radius:12px;padding:14px 16px;margin-bottom:8px;border:0.5px solid}
+</style>
+
+<div style="display:flex;align-items:center;gap:20px;padding:1.25rem 0 0.75rem">
+  <div style="position:relative;flex-shrink:0">
+    <svg width="88" height="88" viewBox="0 0 88 88" role="img" aria-label="Umumiy baho 62 dan 100">
+      <circle cx="44" cy="44" r="38" fill="none" stroke="var(--border)" stroke-width="6"/>
+      <circle cx="44" cy="44" r="38" fill="none" stroke="#eda100" stroke-width="6"
+        stroke-dasharray="238.8" stroke-dashoffset="90.7"
+        stroke-linecap="round" transform="rotate(-90 44 44)"/>
+    </svg>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <span style="font-size:22px;font-weight:500;color:var(--text-primary);line-height:1.1">62</span>
+      <span style="font-size:10px;color:var(--text-muted)">/100</span>
+    </div>
+  </div>
+  <div style="min-width:0">
+    <p style="font-size:17px;font-weight:500;margin:0 0 3px;color:var(--text-primary)">O'rtacha — qurilishi mumkin</p>
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 10px;line-height:1.4">Loyiha reallashtirilishi mumkin, lekin 2 ta kritik to'siq hal qilinishi shart</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <span style="font-size:12px;font-weight:500;padding:2px 9px;border-radius:var(--radius);background:var(--bg-success);color:var(--text-success)">2 ta yaxshi</span>
+      <span style="font-size:12px;font-weight:500;padding:2px 9px;border-radius:var(--radius);background:var(--bg-warning);color:var(--text-warning)">2 ta o'rtacha</span>
+      <span style="font-size:12px;font-weight:500;padding:2px 9px;border-radius:var(--radius);background:var(--bg-danger);color:var(--text-danger)">1 ta kritik</span>
+    </div>
+  </div>
+</div>
+
+<div style="height:0.5px;background:var(--border);margin:0.25rem 0 0.75rem"></div>
+<div id="tc"></div>
+
+<div style="margin-top:1rem">
+  <p style="font-size:12px;font-weight:500;color:var(--text-muted);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.06em">Hal qilinishi shart bo'lgan muammolar</p>
+  <div class="rc" style="background:var(--bg-danger);border-color:var(--border-danger)">
+    <div style="display:flex;gap:10px">
+      <i class="ti ti-alert-triangle" style="font-size:18px;color:var(--text-danger);flex-shrink:0;margin-top:2px" aria-hidden="true"></i>
+      <div>
+        <p style="font-size:14px;font-weight:500;margin:0 0 4px;color:var(--text-danger)">After Effects o'rniga Remotion yoki FFmpeg ko'ring</p>
+        <p style="font-size:13px;color:var(--text-danger);margin:0;line-height:1.55">aerender faqat Windows — bu RunPod Linux serverlarida ishlamaydi va Adobe litsenziyasi muammosi bor. Alternativ: Remotion (React-based, Linux-compatible, open-source) yoki FFmpeg + Canvas API bilan custom subtitle renderer. Bu ikki muammoni bir vaqtda hal qiladi.</p>
+      </div>
+    </div>
+  </div>
+  <div class="rc" style="background:var(--bg-warning);border-color:var(--border-warning)">
+    <div style="display:flex;gap:10px">
+      <i class="ti ti-shield" style="font-size:18px;color:var(--text-warning);flex-shrink:0;margin-top:2px" aria-hidden="true"></i>
+      <div>
+        <p style="font-size:14px;font-weight:500;margin:0 0 4px;color:var(--text-warning)">Xavfsizlik + Error handling qo'shing</p>
+        <p style="font-size:13px;color:var(--text-warning);margin:0;line-height:1.55">.aep fayllarni sandbox muhitida ochish, render crash bo'lganda token qaytarish, retry mexanizmi va video fayl hajm chegaralari — bularni 3-bosqichga qo'shmasdan production ga chiqib bo'lmaydi.</p>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+    <button onclick="sendPrompt('Remotion va FFmpeg bilan subtitle rendering qanday qilinadi? After Effects o\'rniga ishlaydigan yechimlari ko\'rsat')" style="font-size:13px;padding:6px 14px">Remotion alternativini ko'rsat ↗</button>
+    <button onclick="sendPrompt('Bu loyihada xavfsizlik arxitekturasi va error handling qanday quriladi? .aep fayl xavfsizligi, retry logika va token qaytarish mexanizmi haqida batafsil')" style="font-size:13px;padding:6px 14px">Xavfsizlik yechimi ↗</button>
+  </div>
+</div>
+
+<script>
+const T=[
+  {id:1,title:"Texnik amalga oshirilishi",icon:"ti-tool",score:68,st:"warn",sum:"Stack yaxshi, lekin aerender Windows-ga bog'liqligi kritik muammo",
+  findings:[
+    {t:"pass",x:"Next.js + Supabase: industrial-grade poydevor, ishonchli va keng qo'llaniladigan tanlov"},
+    {t:"pass",x:"Deepgram / Whisper API: professional transkriptsiya, integratsiyasi sodda va hujjatlar kuchli"},
+    {t:"warn",x:"Nexrender: production muhitda chuqur sinovdan o'tkazish shart, hujjatlar va community cheklangan"},
+    {t:"fail",x:"aerender (After Effects CLI): FAQAT Windows ishlaydi — Linux RunPod serverlarida ishlamaydi. Adobe server litsenziyasi alohida olinishi kerak ($55+/oy)"},
+    {t:"fail",x:"ExtendScript .aep injection: mo'rt (brittle) yondashuv — qatlam nomi yoki .aep versiyasi farq qilsa butun pipeline sinadi, debug qilish juda qiyin"},
+  ]},
+  {id:2,title:"Arxitektura izchilligi",icon:"ti-sitemap",score:62,st:"warn",sum:"5 bosqich mantiqan to'g'ri, lekin critical gap'lar bor",
+  findings:[
+    {t:"pass",x:"5 bosqichli zanjir: Auth → AI Transcription → AE Render → Queue → Cloud Scale — mantiqan izchil"},
+    {t:"pass",x:"Redis Priority Queue: Free va Pro foydalanuvchilarni ajratish uchun to'g'ri va samarali tanlov"},
+    {t:"fail",x:"Error handling umuman yo'q: render crash bo'lsa foydalanuvchi tokenini yo'qotadimi? Retry strategiyasi nol"},
+    {t:"fail",x:"Foydalanuvchi .aep yuklashida xavfsizlik skaneri yo'q: zararli ExtendScript kodi orqali server buzilishi mumkin"},
+    {t:"warn",x:"Video hajm chegaralari belgilanmagan: 4K video 10+ GB, bu Supabase free storage limitini sindiradi"},
+    {t:"warn",x:"Redis navbat holati va Supabase DB sinxronizatsiyasi noaniq: desync bo'lsa navbat tartibsizlashadi"},
+  ]},
+  {id:3,title:"Xavf va kamchiliklar",icon:"ti-alert-triangle",score:45,st:"fail",sum:"Bir necha kritik xavf loyihani to'xtatishi mumkin",
+  findings:[
+    {t:"fail",x:"Adobe EULA: serverda avtomatlashtirilgan tijoriy render litsenziyaga zid bo'lishi mumkin — huquqiy va moliyaviy xavf"},
+    {t:"fail",x:"Windows majburiyligi: aerender Linux-da ishlamaydi → RunPod GPU serverlarida o'rnatib bo'lmaydi. Windows GPU VM kerak → narx 2-3x oshadi"},
+    {t:"fail",x:"Yagona render serveri (SPOF): server tushsa barcha Free + Pro foydalanuvchi kutadi, failover va SLA yo'q"},
+    {t:"warn",x:"GPU xarajati: 5000 user × 5 daq render × RTX 4090 $0.74/soat = oyiga ~$1500–3000 faqat compute xarajati"},
+    {t:"warn",x:"Whisper narxi: 1 soatlik video ≈ $0.36 — Free foydalanuvchilar soni oshsa zarar ko'rinadi, cheklovlar aniq belgilanmagan"},
+  ]},
+  {id:4,title:"Biznes modeli",icon:"ti-currency-dollar",score:78,st:"pass",sum:"Freemium model kuchli, narxlash sxemasini kengaytirish kerak",
+  findings:[
+    {t:"pass",x:"Freemium model: foydalanuvchi jalb qilishning eng samarali yo'li — to'g'ri strategiya"},
+    {t:"pass",x:"Priority Queue: Pro uchun kuchli psixologik ushlab turish mexanizmi — 'VIP his'ini beradi"},
+    {t:"pass",x:"Stripe + Payme kombinatsiyasi: xalqaro va O'zbekiston bozori uchun maqbul yechim"},
+    {t:"warn",x:"Bitta narx rejasi faqat ($39/oy): Starter / Pro / Agency tier sxemasi yanada ko'proq daromad va katta klientlarni keltiради"},
+    {t:"warn",x:"Qaytarish va obuna bekor qilish siyosati hujjatlanmagan: qonuniy va reputatsion xavf"},
+  ]},
+  {id:5,title:"5000 foydalanuvchiga shkallanish",icon:"ti-rocket",score:58,st:"warn",sum:"Cloud strategiyasi yaxshi, AE bottleneck butun rejani buzadi",
+  findings:[
+    {t:"pass",x:"Cloudflare R2: massiv fayl saqlash uchun ideal, arzon va tezkor — bu loyihadagi eng to'g'ri tanlovlardan biri"},
+    {t:"pass",x:"RunPod GPU auto-scaling kontseptsiyasi to'g'ri: on-demand GPU = xarajat optimallashtirish"},
+    {t:"fail",x:"After Effects + RunPod: RunPod serverlarining aksariyati Linux — aerender o'rnatish imkonsiz. Faqat Windows GPU VM ishlaydi → narx sezilarli oshadi"},
+    {t:"fail",x:"Parallel render chegarasi aniqlanmagan: 100 ta render bir vaqtda kelsa nima bo'ladi? Queue depth va concurrency limitlar yo'q"},
+    {t:"warn",x:"GPU cold start latency: RunPod serveri yonishi uchun 30–120 soniya ketadi — Pro foydalanuvchi uchun yomon UX"},
+  ]},
+];
+
+const SC={pass:{bg:"var(--bg-success)",fg:"var(--text-success)",bar:"#1baf7a",lbl:"Yaxshi"},warn:{bg:"var(--bg-warning)",fg:"var(--text-warning)",bar:"#eda100",lbl:"O'rtacha"},fail:{bg:"var(--bg-danger)",fg:"var(--text-danger)",bar:"#e34948",lbl:"Kritik"}};
+const FI={pass:"ti-circle-check",warn:"ti-alert-circle",fail:"ti-circle-x"};
+const FC={pass:"var(--text-success)",warn:"var(--text-warning)",fail:"var(--text-danger)"};
+const r=16,circ=2*Math.PI*r;
+const tc=document.getElementById('tc');
+
+T.forEach(t=>{
+  const sc=SC[t.st];
+  const off=(circ*(1-t.score/100)).toFixed(1);
+  const el=document.createElement('div');
+  el.className='ac';
+  el.innerHTML=`
+    <div class="ah" role="button" aria-expanded="false" tabindex="0"
+      onclick="const b=this.nextElementSibling;const o=b.classList.toggle('open');this.setAttribute('aria-expanded',o);this.querySelector('.chev').style.transform=o?'rotate(180deg)':'rotate(0deg)'">
+      <div style="position:relative;width:38px;height:38px;flex-shrink:0">
+        <svg width="38" height="38" viewBox="0 0 38 38" aria-hidden="true">
+          <circle cx="19" cy="19" r="${r}" fill="none" stroke="var(--border)" stroke-width="3.5"/>
+          <circle cx="19" cy="19" r="${r}" fill="none" stroke="${sc.bar}" stroke-width="3.5"
+            stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off}"
+            stroke-linecap="round" transform="rotate(-90 19 19)"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--text-primary)">${t.score}</div>
+      </div>
+      <i class="ti ${t.icon}" style="font-size:17px;color:var(--text-secondary)" aria-hidden="true"></i>
+      <div style="flex:1;min-width:0">
+        <p style="margin:0;font-size:13.5px;font-weight:500;color:var(--text-primary)">${t.title}</p>
+        <p style="margin:0;font-size:12px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.sum}</p>
+      </div>
+      <span style="background:${sc.bg};color:${sc.fg};font-size:11px;font-weight:500;padding:2px 8px;border-radius:var(--radius);flex-shrink:0">${sc.lbl}</span>
+      <i class="ti ti-chevron-down chev" style="font-size:15px;color:var(--text-muted);transition:transform 0.2s;flex-shrink:0" aria-hidden="true"></i>
+    </div>
+    <div class="ab">
+      <div style="padding-top:8px">
+        ${t.findings.map(f=>`<div class="fr">
+          <i class="ti ${FI[f.t]}" style="font-size:15px;color:${FC[f.t]};flex-shrink:0;margin-top:2px" aria-hidden="true"></i>
+          <span style="color:var(--text-secondary)">${f.x}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  tc.appendChild(el);
+});
+</script>
