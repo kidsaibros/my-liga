@@ -6,7 +6,7 @@ import type { ProfileRole } from "@/lib/types";
 /**
  * Google bilan har kirishda chaqiriladi (app/auth/callback/route.ts).
  * Rol/team_id manbasi doim shu funksiya — profilga qo'lda o'zgartirilmaydi:
- *   1) email === NEXT_PUBLIC_SUPER_ADMIN_EMAIL           → super_admin
+ *   1) email === SUPER_ADMIN_EMAIL                       → super_admin
  *   2) teams.coach_id = user.id (Super Admin to'g'ridan-to'g'ri tayinlagan)
  *      YOKI teams.coach_email mos keladi (ro'yxatdan o'tishdan oldin taklif)
  *                                                          → coach + o'sha team_id
@@ -20,7 +20,15 @@ import type { ProfileRole } from "@/lib/types";
 export async function syncProfileRole(user: User): Promise<{ role: ProfileRole; teamId: string | null }> {
   const admin = createAdminClient();
   const email = (user.email ?? "").toLowerCase().trim();
-  const superAdminEmail = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL?.toLowerCase().trim();
+  // XAVFSIZLIK: super admin emaili SERVER-ONLY o'zgaruvchidan olinadi.
+  // Ilgari `NEXT_PUBLIC_` prefiksi bilan edi — bu qiymat brauzer bundle'iga
+  // ham joylanib, super admin emailini oshkor qilardi. Endi prefiksiz
+  // `SUPER_ADMIN_EMAIL` ishlatiladi (client'ga chiqmaydi). Eski nom faqat
+  // migratsiya davri uchun zaxira sifatida qoldirilgan — Vercel'da yangi
+  // o'zgaruvchi o'rnatilgach, eskisini o'chirib tashlang.
+  const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL ?? process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL)
+    ?.toLowerCase()
+    .trim();
 
   let role: ProfileRole = "user";
   let teamId: string | null = null;
